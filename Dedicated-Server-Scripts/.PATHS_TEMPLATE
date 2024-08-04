@@ -1,0 +1,14 @@
+### The scripts for running the server pull the locations of certain files from this file. Replace these values with the paths to each of these locations and then rename this file to just .PATHS
+
+currentGameFullPath=
+_7D2D_SaveLocation=
+_7D2D_BackupLocation=
+_7D2D_ServerLocation=
+_7D2D_ServerConfig=
+_Palworld_SaveLocation=
+_Palworld_BackupLocation=
+_Palworld_ServerLocation=
+
+### ShutdownComputer.sh will ping all IPs or DNS names listed here and shutdown the server computer only when all machines fail to ping. Separate each machine listed by comma (Desktop1,Desktop2)
+
+pingTargets=
