@@ -35,12 +35,16 @@ while :; do
             fi
         done
         if [[ $lastBackup != "$backupNewEntryPath" ]]; then
-            mkdir -p "${backupNewEntryPath}" && rsync -rt "${savePath}" "${backupNewEntryPath}"
-            log "Backup created at ${backupNewEntryPath}"
-            newBackupDifference=$(diff -qrN "${lastBackup}" "${backupNewEntryPath}")
-            if [[ -z $newBackupDifference ]]; then
-                rm -r "${backupNewEntryPath}"
-                log "Newly created backup ${backupNewEntryPath} was deleted because it was identical to ${lastBackup}."
+            if [[ $lastBackup -nt "$savePath" ]]; then
+                mkdir -p "${backupNewEntryPath}" && rsync -rt "${savePath}" "${backupNewEntryPath}"
+                log "Backup created at ${backupNewEntryPath}"
+                newBackupDifference=$(diff -qrN "${lastBackup}" "${backupNewEntryPath}")
+                if [[ -z $newBackupDifference ]]; then
+                    rm -r "${backupNewEntryPath}"
+                    log "Newly created backup ${backupNewEntryPath} was deleted because it was identical to ${lastBackup}."
+                fi
+            else
+                log "No backup performed because ${lastBackup} is newer than ${savePath}."
             fi
         else
             log "The last backup path is the same as ${backupNewEntryPath}. This is normal if a backup happened within an hour of this attempt."
