@@ -32,4 +32,4 @@ while [[ $DesktopShutdown != "true" ]]; do
 	fi
 done
 sudo systemctl stop DedicatedServerController.service
-sudo /usr/sbin/shutdown -P now
+sudo systemctl start ShutdownComputer.service
