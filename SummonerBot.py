@@ -52,7 +52,7 @@ async def on_ready():
 
 async def summon(summonedGame,interaction):
     await interaction.response.defer(ephemeral=True,thinking=True)
-    log(f"{interaction.user} used {interaction.command.name} in {interaction.channel}")
+    log(f"{interaction.user.global_name} used {interaction.command.name} in {interaction.channel}")
     if (os.path.exists(currentGamePath)) is False:
         with open(currentGamePath, "w") as f:
             f.write("")
