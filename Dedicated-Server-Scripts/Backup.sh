@@ -12,7 +12,7 @@ done
 
 log()
 {
-    echo "$(date +%y/%m/%d_%H:%M:%S):: $*" >> "$saveLog"
+    echo "$(date +%Y/%m/%d_%H:%M:%S):: $*" >> "$saveLog"
 }
 
 while :; do
