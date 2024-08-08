@@ -31,5 +31,6 @@ while [[ $DesktopShutdown != "true" ]]; do
 		sleep $((5*60))
 	fi
 done
+echo "" > "${currentGameFullPath}"
 sudo systemctl stop DedicatedServerController.service
 sudo systemctl start ShutdownComputer.service
