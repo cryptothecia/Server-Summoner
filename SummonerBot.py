@@ -11,7 +11,6 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 currentGamePath = os.getenv('currentGamePath')
 logging = (os.getenv('logging')) == "True"
-time = datetime.datetime.now()
 logFile=os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),"summonerlog.txt")
 intents = discord.Intents.default()
 intents.message_content = True
@@ -42,6 +41,7 @@ def log(logMessage):
             with open(logFile, "w") as f:
                 f.write("")
         with open(logFile, "a") as f:
+            time = datetime.datetime.now()
             f.write(time.strftime("%Y/%m/%d_%H:%M:%S") + ":: " + logMessage + "\n")
 
 @bot.event
