@@ -76,7 +76,7 @@ async def summon(summonedGame,interaction):
     else:
         message = "Oh dear, something went wrong. Sorry."
     await interaction.followup.send(message,ephemeral=True)
-    log(f"Sent to {interaction.user}: \"" + message + "\"")
+    log(f"Sent to {interaction.user.global_name}: \"" + message + "\"")
 
 @tree.command(name="summonpalworld",description=f"Send a request to bring the {games[list(games.keys())[0]]} dedicated server online.")
 async def summonpalworld(interaction: discord.Interaction):
