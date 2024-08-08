@@ -49,7 +49,7 @@ while :; do
         else
             log "The last backup path is the same as ${backupNewEntryPath}. This is normal if a backup happened within an hour of this attempt."
         fi
-        while [[ $noDeletions -ne 1 && ${#existingBackups[@]} -gt 10 ]]; do
+        while [[ $noDeletions -ne 1 && ${#existingBackups[@]} -gt 11 ]]; do
             existingBackups=("${backupLocation}/"*Hour*)
             oldestBackup=${existingBackups[0]}
             for d in "${existingBackups[@]}"; do
