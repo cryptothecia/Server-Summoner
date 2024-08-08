@@ -35,7 +35,7 @@ while :; do
             fi
         done
         if [[ $lastBackup != "$backupNewEntryPath" ]]; then
-            if [[ $lastBackup -nt "$savePath" ]]; then
+            if [[ $lastBackup -ot "$savePath" ]]; then
                 mkdir -p "${backupNewEntryPath}" && rsync -rt "${savePath}" "${backupNewEntryPath}"
                 log "Backup created at ${backupNewEntryPath}"
                 newBackupDifference=$(diff -qrN "${lastBackup}" "${backupNewEntryPath}")
