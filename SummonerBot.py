@@ -19,6 +19,7 @@ tree = app_commands.CommandTree(bot)
 games = {
     "Palworld" : "Palworld",
     "7D2D" : "7 Days to Die",
+    "Enshrouded" : "Enshrouded",
     "something" : "something"
 }
 
@@ -85,5 +86,9 @@ async def summonpalworld(interaction: discord.Interaction):
 @tree.command(name="summon7days",description=f"Send a request to bring the {games[list(games.keys())[1]]} dedicated server online.")
 async def summon7days(interaction: discord.Interaction):
     await summon(f"{list(games.keys())[1]}",interaction=interaction)
+
+@tree.command(name="summonenshrouded",description=f"Send a request to bring the {games[list(games.keys())[2]]} dedicated server online.")
+async def summonenshrouded(interaction: discord.Interaction):
+    await summon(f"{list(games.keys())[2]}",interaction=interaction)
 
 bot.run(TOKEN)
