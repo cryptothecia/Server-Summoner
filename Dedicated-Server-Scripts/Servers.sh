@@ -18,6 +18,9 @@ case "${game}" in
     "7D2D")
         "${!serverLocation}" -configfile="${_7D2D_ServerConfig}"
     ;;
+    "Enshrouded")
+        wine64 "${!serverLocation}"
+    ;;
     *)
         "${!serverLocation}"
 esac
