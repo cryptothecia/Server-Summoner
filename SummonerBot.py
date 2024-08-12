@@ -58,7 +58,7 @@ async def summon(summonedGame,interaction):
         with open(currentGamePath, "w") as f:
             f.write("")
     with open(currentGamePath, "r+") as f:
-        currentGame = f.read()
+        currentGame = f.read().replace('\n',"")
         if currentGame == "":
             f.seek(0)
             f.write(summonedGame)
@@ -70,10 +70,12 @@ async def summon(summonedGame,interaction):
             netConnect.sendto(MagicPacket, ("255.255.255.255",7))
         message = f"Bringing {games[summonedGame]} server online."
     elif "Locked" in currentGame:
-        currentGame = currentGame.replace("Locked","").replace('\n',"")
+        currentGame = currentGame.replace("Locked","")
         if currentGame is None:
             currentGame = "something"
-        message = f"Looks like the dedicated server should already be online running {games[currentGame]}."
+        message = f"The information I have tells me the dedicated server should already be online running {games[currentGame]}."
+    elif currentGame in games:
+        message = f"The information I have tells me the dedicated server already has a request to bring {games[currentGame]} online."
     else:
         message = "Oh dear, something went wrong. Sorry."
     await interaction.followup.send(message,ephemeral=True)
