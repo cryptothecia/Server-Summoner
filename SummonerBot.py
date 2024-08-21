@@ -12,6 +12,7 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 currentGamePath = os.getenv('currentGamePath')
 logging = (os.getenv('logging')) == "True"
 logFile=os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),"summonerlog.txt")
+botOwner=os.getenv('BotOwnerID')
 intents = discord.Intents.default()
 intents.message_content = True
 bot = discord.Client(intents=intents)
@@ -24,7 +25,7 @@ games = {
 }
 
 #This section builds information for sending magic packets
-MAC = os.getenv('MAC')
+MAC = os.getenv('DedicatedServerMAC')
 MACSplit = MAC.replace(MAC[2], '')
 MACBytes = ''.join(['FFFFFFFFFFFF', MACSplit * 20])
 MagicPacket = b''
@@ -34,6 +35,11 @@ for i in range(0, len(MACBytes), 2):
         MagicPacket,
         struct.pack('B', int(MACBytes[i: i + 2], 16))
     ])
+
+def send_wol():
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) as netConnect:
+        netConnect.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        netConnect.sendto(MagicPacket, ("255.255.255.255",7))
 #End magic packet build
 
 def log(logMessage):
@@ -45,6 +51,11 @@ def log(logMessage):
             time = datetime.datetime.now()
             f.write(time.strftime("%Y/%m/%d_%H:%M:%S") + ":: " + logMessage + "\n")
 
+def is_owner(interaction: discord.Interaction):
+    if str(interaction.user.id) == botOwner:
+        return True
+    return False
+
 @bot.event
 async def on_ready():
     log("")
@@ -53,7 +64,7 @@ async def on_ready():
 
 async def summon(summonedGame,interaction):
     await interaction.response.defer(ephemeral=True,thinking=True)
-    log(f"{interaction.user.global_name} used {interaction.command.name} in {interaction.channel}")
+    log(f"{interaction.user.global_name} used {interaction.command.name} in {interaction.channel} in {interaction.guild}")
     if (os.path.exists(currentGamePath)) is False:
         with open(currentGamePath, "w") as f:
             f.write("")
@@ -65,9 +76,7 @@ async def summon(summonedGame,interaction):
             f.truncate()
             currentGame = summonedGame
     if (f"{summonedGame}" in currentGame) and ("Locked" not in currentGame):
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) as netConnect:
-            netConnect.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-            netConnect.sendto(MagicPacket, ("255.255.255.255",7))
+        send_wol()
         message = f"Bringing {games[summonedGame]} server online."
     elif "Locked" in currentGame:
         currentGame = currentGame.replace("Locked","")
@@ -81,6 +90,7 @@ async def summon(summonedGame,interaction):
     await interaction.followup.send(message,ephemeral=True)
     log(f"Sent to {interaction.user.global_name}: \"" + message + "\"")
 
+### LIST OF COMMANDS STARTS HERE
 @tree.command(name="summonpalworld",description=f"Send a request to bring the {games[list(games.keys())[0]]} dedicated server online.")
 async def summonpalworld(interaction: discord.Interaction):
     await summon(f"{list(games.keys())[0]}",interaction=interaction)
@@ -92,5 +102,21 @@ async def summon7days(interaction: discord.Interaction):
 @tree.command(name="summonenshrouded",description=f"Send a request to bring the {games[list(games.keys())[2]]} dedicated server online.")
 async def summonenshrouded(interaction: discord.Interaction):
     await summon(f"{list(games.keys())[2]}",interaction=interaction)
+
+### ADMIN ONLY COMMANDS
+@tree.command(name="summonlogs",description=f"ADMIN ONLY. Returns latest log entries.")
+@app_commands.check(is_owner)
+async def summonlogs(interaction: discord.Interaction,number_of_lines: int):
+    await interaction.response.defer(ephemeral=True,thinking=True)
+    message = []
+    with open(logFile, "r") as f:
+        for line in (f.readlines() [-number_of_lines:]):
+            message.append(line)
+    log(f"{interaction.user.global_name} used {interaction.command.name} in {interaction.channel} in {interaction.guild}")
+    await interaction.followup.send(''.join(message),ephemeral=True)
+@summonlogs.error
+async def on_error(interaction: discord.Interaction, error):
+    await interaction.response.send_message("You do not have permissions for this command.")
+    log(f"{interaction.user.global_name} tried to use {interaction.command.name} in {interaction.channel} in {interaction.guild}, but the command was denied.",ephemeral=True)
 
 bot.run(TOKEN)
