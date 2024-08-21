@@ -49,7 +49,10 @@ def log(logMessage):
                 f.write("")
         with open(logFile, "a", encoding="utf-8") as f:
             time = datetime.datetime.now()
-            f.write(time.strftime("%Y/%m/%d_%H:%M:%S") + ":: " + logMessage + "\n")
+            try: 
+                f.write(time.strftime("%Y/%m/%d_%H:%M:%S") + ":: " + logMessage + "\n")
+            except: 
+                f.write(time.strftime("%Y/%m/%d_%H:%M:%S") + ":: " + "A log entry was attempted, but an error occurred." + "\n")
 
 def is_owner(interaction: discord.Interaction):
     if str(interaction.user.id) == botOwner:
