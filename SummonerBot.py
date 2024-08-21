@@ -116,7 +116,8 @@ async def summonlogs(interaction: discord.Interaction,number_of_lines: int):
     await interaction.followup.send(''.join(message),ephemeral=True)
 @summonlogs.error
 async def on_error(interaction: discord.Interaction, error):
-    await interaction.response.send_message("You do not have permissions for this command.",ephemeral=True)
+    await interaction.response.defer(ephemeral=True,thinking=True)
     log(f"{interaction.user.global_name} tried to use {interaction.command.name} in {interaction.channel} in {interaction.guild}, but the command was denied.")
+    await interaction.followup.send("You do not have permissions for this command.",ephemeral=True)
 
 bot.run(TOKEN)
