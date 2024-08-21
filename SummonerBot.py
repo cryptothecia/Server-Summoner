@@ -47,7 +47,7 @@ def log(logMessage):
         if (os.path.exists(logFile)) is False:
             with open(logFile, "w") as f:
                 f.write("")
-        with open(logFile, "a") as f:
+        with open(logFile, "a", encoding="utf-8") as f:
             time = datetime.datetime.now()
             f.write(time.strftime("%Y/%m/%d_%H:%M:%S") + ":: " + logMessage + "\n")
 
