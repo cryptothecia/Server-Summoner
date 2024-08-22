@@ -4,6 +4,8 @@ import discord
 import socket
 import struct
 import datetime
+import time
+from threading import *
 from discord import app_commands
 from dotenv import load_dotenv
 
@@ -17,11 +19,33 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = discord.Client(intents=intents)
 tree = app_commands.CommandTree(bot)
+DedicatedServerHostname = os.getenv('DedicatedServerHostname')
+port = 62487
+buffer = 1024
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+requestQueued = False
+queuedRequest = None
+queuedRequestTime = None
+requestTime = None
 games = {
     "Palworld" : "Palworld",
     "7D2D" : "7 Days to Die",
     "Enshrouded" : "Enshrouded"
 }
+responsesFromServer = [
+    "Bringing game server online.",
+    " running",
+    "Error",
+    "No request made"
+]
+askServerReturnMessages = [
+    responsesFromServer[0],
+    "The dedicated server was requested to come online time minutes ago, but is still not responding.",
+    "The dedicated server reports it is already online running game."
+    "The dedicated server is online but not running any games."
+    "Oh dear, something went wrong. Sorry."
+    "The dedicated server is not online."
+]
 
 #This section builds information for sending magic packets
 MAC = os.getenv('DedicatedServerMAC')
@@ -59,12 +83,97 @@ def is_owner(interaction: discord.Interaction):
         return True
     return False
 
+def summon_server():
+    serverOnline = False
+    while serverOnline is not True:
+        send_wol()
+        try: 
+            host = socket.gethostbyname(DedicatedServerHostname)
+            try:
+                global requestQueued
+                global queuedRequest
+                s.connect((host, port))
+                s.send(queuedRequest.encode())
+                data = s.recv(buffer)
+                s.close()
+                requestQueued = False
+                queuedRequest = None
+                serverOnline = True
+            except: 
+                print("Summon_server can find IP but can't send a message, sleeping.")
+                time.sleep(10)
+        except:
+            print("Summon_server cannot find IP, sleeping.")
+            time.sleep(10)
+
+def ask_server(request: str):
+    try: 
+        host = socket.gethostbyname(DedicatedServerHostname)
+        #host = '127.0.0.1'
+        try:
+            s.connect((host, port))
+            s.send(request.encode())
+            reply = s.recv(buffer)
+            reply = reply.decode()
+            s.close()
+            match reply: 
+                case reply if reply == responsesFromServer[0].replace("game",request):
+                    return reply
+                case reply if responsesFromServer[1] in reply:
+                    activeGames = reply.replace(responsesFromServer[1],"")
+                    if activeGames != "":
+                        i=0
+                        for game in games:
+                            if game in activeGames:
+                                replacement = True
+                                activeGames = activeGames.replace(list(games.keys())[i],games[list(games.keys())[i]])
+                                activeGames = activeGames + " and "
+                            i+=1
+                        if replacement == True:
+                            activeGames = activeGames[:-5]
+                        return askServerReturnMessages[2].replace("game",activeGames)
+                    else:
+                        return askServerReturnMessages[3]
+                case _:
+                    return askServerReturnMessages[4]
+        except: 
+            print("Server has IP but not answering.")
+            askFailure = True
+    except: 
+        print("Server does not have IP.")
+        askFailure = True
+    if request in games and askFailure is True:
+        global queuedRequest
+        queuedRequest = request
+        if requestQueued is False: 
+            global requestQueued
+            requestQueued = True
+            global requestTime
+            requestTime = time.time()
+            thread = Thread(target=summon_server,daemon=True)
+            thread.start()
+            return askServerReturnMessages[0].replace("game",request)
+        else:
+            if (time.time() - requestTime) > (10*60):
+                return askServerReturnMessages[1].replace("time",f"{(time.time() - requestTime)/60:.0f}")
+            else:
+                return askServerReturnMessages[0].replace("game",request)
+    else:
+        return askServerReturnMessages[5]
+
 @bot.event
 async def on_ready():
     log("")
     log(f'{bot.user} has connected to Discord!')
     await tree.sync() 
 
+async def summon(summonedGame,interaction):
+    await interaction.response.defer(ephemeral=True,thinking=True)
+    log(f"{interaction.user.global_name} used {interaction.command.name} in {interaction.channel} in {interaction.guild}")
+    message = ask_server(summonedGame)
+    await interaction.followup.send(message,ephemeral=True)
+    log(f"Sent to {interaction.user.global_name}: \"" + message + "\"")
+'''
 async def summon(summonedGame,interaction):
     await interaction.response.defer(ephemeral=True,thinking=True)
     log(f"{interaction.user.global_name} used {interaction.command.name} in {interaction.channel} in {interaction.guild}")
@@ -92,8 +201,13 @@ async def summon(summonedGame,interaction):
         message = "Oh dear, something went wrong. Sorry."
     await interaction.followup.send(message,ephemeral=True)
     log(f"Sent to {interaction.user.global_name}: \"" + message + "\"")
-
+'''
+    
 ### LIST OF COMMANDS STARTS HERE
+@tree.command(name="summonstatus",description=f"Ask the server ")
+async def summonpalworld(interaction: discord.Interaction):
+    await summon(f"{list(games.keys())[0]}",interaction=interaction)
+
 @tree.command(name="summonpalworld",description=f"Send a request to bring the {games[list(games.keys())[0]]} dedicated server online.")
 async def summonpalworld(interaction: discord.Interaction):
     await summon(f"{list(games.keys())[0]}",interaction=interaction)
