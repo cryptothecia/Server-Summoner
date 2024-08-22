@@ -22,7 +22,6 @@ tree = app_commands.CommandTree(bot)
 DedicatedServerHostname = os.getenv('DedicatedServerHostname')
 port = 62487
 buffer = 1024
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 requestQueued = False
 queuedRequest = None
 queuedRequestTime = None
@@ -41,9 +40,9 @@ responsesFromServer = [
 askServerReturnMessages = [
     responsesFromServer[0],
     "The dedicated server was requested to come online time minutes ago, but is still not responding.",
-    "The dedicated server reports it is already online running game."
-    "The dedicated server is online but not running any games."
-    "Oh dear, something went wrong. Sorry."
+    "The dedicated server reports it is already online running game.",
+    "The dedicated server is online but not running any games.",
+    "Oh dear, something went wrong. Sorry.",
     "The dedicated server is not online."
 ]
 
@@ -92,6 +91,7 @@ def summon_server():
             try:
                 global requestQueued
                 global queuedRequest
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect((host, port))
                 s.send(queuedRequest.encode())
                 data = s.recv(buffer)
@@ -110,6 +110,7 @@ def ask_server(request: str):
     try: 
         host = socket.gethostbyname(DedicatedServerHostname)
         try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((host, port))
             s.send(request.encode())
             reply = s.recv(buffer)
@@ -174,9 +175,9 @@ async def summon(summonedGame,interaction):
     log(f"Sent to {interaction.user.global_name}: \"" + message + "\"")
     
 ### LIST OF COMMANDS STARTS HERE
-@tree.command(name="summonstatus",description=f"Ask the server ")
+@tree.command(name="summonstatus",description=f"Get server status.")
 async def summonstatus(interaction: discord.Interaction):
-    await summon(f"{list(games.keys())[0]}",interaction=interaction)
+    await summon("status",interaction=interaction)
 
 @tree.command(name="summonpalworld",description=f"Send a request to bring the {games[list(games.keys())[0]]} dedicated server online.")
 async def summonpalworld(interaction: discord.Interaction):

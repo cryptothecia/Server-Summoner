@@ -9,7 +9,6 @@ i = 0
 for game in games:
     games[i] = game.replace((servicePath.split("*"))[0],'').replace((servicePath.split("*"))[1],'')
     i+=1
-i = None
 # End game list build
 
 host = ''
@@ -71,11 +70,13 @@ def reply(request):
         case _:
             return "No request made"
 
+conn, addr = s.accept()
 while True:
-    conn, addr = s.accept()
-    while True:
-        request = conn.recv(buffer_size).decode()
-        if not request: 
-            break
-        conn.send(reply(request).encode())
-    conn.close
+    request = conn.recv(buffer_size).decode()
+    if request: 
+        print('received:', request)
+        answer = reply(request)
+        print('sent:', answer)
+        conn.send(answer.encode())
+    if not request: 
+        conn, addr = s.accept()
