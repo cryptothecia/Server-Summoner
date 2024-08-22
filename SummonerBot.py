@@ -22,7 +22,7 @@ tree = app_commands.CommandTree(bot)
 DedicatedServerHostname = os.getenv('DedicatedServerHostname')
 port = 62487
 buffer = 1024
-requestQueued = False
+requestIsQueued = False
 queuedRequest = None
 queuedRequestTime = None
 requestTime = None
@@ -98,14 +98,14 @@ def summon_server():
         try: 
             host = socket.gethostbyname(DedicatedServerHostname)
             try:
-                global requestQueued
+                global requestIsQueued
                 global queuedRequest
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect((host, port))
                 s.send(queuedRequest.encode())
                 data = s.recv(buffer)
                 s.close()
-                requestQueued = False
+                requestIsQueued = False
                 queuedRequest = None
                 serverOnline = True
             except: 
@@ -157,10 +157,10 @@ async def ask_server(request: str):
         askFailure = True
     if request in games and askFailure is True:
         global queuedRequest
-        global requestQueued
+        global requestIsQueued
         queuedRequest = request
-        if requestQueued is False: 
-            requestQueued = True
+        if requestIsQueued is False: 
+            requestIsQueued = True
             global requestTime
             requestTime = time.time()
             thread = Thread(target=summon_server,daemon=True)
