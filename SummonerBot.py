@@ -40,7 +40,7 @@ responsesFromServer = [
 askServerReturnMessages = [
     responsesFromServer[0],
     "The dedicated server was requested to come online time minutes ago, but is still not responding.",
-    "The dedicated server reports it is already online running game.",
+    "The dedicated server reports it is online running game.",
     "The dedicated server is online but not running any games.",
     "Oh dear, something went wrong. Sorry.",
     "The dedicated server is not online."
@@ -65,6 +65,7 @@ def send_wol(iterations: int = 2):
             netConnect.sendto(MagicPacket, ("255.255.255.255",7))
 #End magic packet build
 
+### Logs command usage
 def log(logMessage: str):
     if logging is True:
         if (os.path.exists(logFile)) is False:
@@ -77,11 +78,19 @@ def log(logMessage: str):
             except: 
                 f.write(time.strftime("%Y/%m/%d_%H:%M:%S") + ":: " + "A log entry was attempted, but an error occurred." + "\n")
 
+### Used as a permission check for commands, checks if user is botOwner defined in the .env
 def is_owner(interaction: discord.Interaction):
     if str(interaction.user.id) == botOwner:
         return True
     return False
 
+async def set_bot_status(status=None):
+    if status is None:
+        await bot.change_presence()
+    else: 
+        await bot.change_presence(activity=discord.Game(name=f"{status}"))
+
+### This is only used in a seperate thread to wake up the Dedicated Server machine
 def summon_server():
     serverOnline = False
     while serverOnline is not True:
@@ -106,7 +115,8 @@ def summon_server():
             print("Summon_server cannot find IP, sleeping.")
             time.sleep(10)
 
-def ask_server(request: str):
+### Sends messages to the Dedicated Server machine that is running DedicatedServerController.py and returns a str to the end user based on results
+async def ask_server(request: str):
     try: 
         host = socket.gethostbyname(DedicatedServerHostname)
         try:
@@ -118,6 +128,7 @@ def ask_server(request: str):
             s.close()
             match reply: 
                 case reply if reply == responsesFromServer[0].replace("game",request):
+                    await set_bot_status(request)
                     return reply
                 case reply if responsesFromServer[1] in reply:
                     activeGames = reply.replace(responsesFromServer[1],"")
@@ -131,8 +142,10 @@ def ask_server(request: str):
                             i+=1
                         if replacement == True:
                             activeGames = activeGames[:-5]
+                        await set_bot_status(activeGames)
                         return askServerReturnMessages[2].replace("game",activeGames)
                     else:
+                        await set_bot_status()
                         return askServerReturnMessages[3]
                 case _:
                     return askServerReturnMessages[4]
@@ -159,6 +172,7 @@ def ask_server(request: str):
             else:
                 return askServerReturnMessages[0].replace("game",request)
     else:
+        await set_bot_status()
         return askServerReturnMessages[5]
 
 @bot.event
@@ -167,10 +181,11 @@ async def on_ready():
     log(f'{bot.user} has connected to Discord!')
     await tree.sync() 
 
+### Mostly just a wrapper for ask_server
 async def summon(summonedGame,interaction):
     await interaction.response.defer(ephemeral=True,thinking=True)
     log(f"{interaction.user.global_name} used {interaction.command.name} in {interaction.channel} in {interaction.guild}")
-    message = ask_server(summonedGame)
+    message = await ask_server(summonedGame)
     await interaction.followup.send(message,ephemeral=True)
     log(f"Sent to {interaction.user.global_name}: \"" + message + "\"")
     
