@@ -12,7 +12,7 @@ while [[ $DesktopShutdown != "true" ]]; do
 	i=0
 	for target in "${pingTargets[@]}"; do
 		pingResults[i]=$(ping "${target}" -c 4)
-		(("i++"))
+		((i++))
 	done
 	anyOnline=$(echo "${pingResults[@]}" | wc -w)
 	if [[ $anyOnline -eq 0 ]]; then
@@ -31,6 +31,5 @@ while [[ $DesktopShutdown != "true" ]]; do
 		sleep $((5*60))
 	fi
 done
-echo "" > "${currentGameFullPath}"
 sudo systemctl stop DedicatedServerController.service
 sudo systemctl start ShutdownComputer.service
