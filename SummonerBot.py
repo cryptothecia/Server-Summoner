@@ -11,8 +11,8 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 currentGamePath = os.getenv('currentGamePath')
 logging = (os.getenv('logging')) == "True"
-logFile=os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),"summonerlog.txt")
-botOwner=os.getenv('BotOwnerID')
+logFile = os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),"summonerlog.txt")
+botOwner = os.getenv('BotOwnerID')
 intents = discord.Intents.default()
 intents.message_content = True
 bot = discord.Client(intents=intents)
@@ -20,8 +20,7 @@ tree = app_commands.CommandTree(bot)
 games = {
     "Palworld" : "Palworld",
     "7D2D" : "7 Days to Die",
-    "Enshrouded" : "Enshrouded",
-    "something" : "something"
+    "Enshrouded" : "Enshrouded"
 }
 
 #This section builds information for sending magic packets
@@ -36,13 +35,14 @@ for i in range(0, len(MACBytes), 2):
         struct.pack('B', int(MACBytes[i: i + 2], 16))
     ])
 
-def send_wol():
-    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) as netConnect:
-        netConnect.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        netConnect.sendto(MagicPacket, ("255.255.255.255",7))
+def send_wol(iterations: int = 2):
+    for i in range(iterations):
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) as netConnect:
+            netConnect.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+            netConnect.sendto(MagicPacket, ("255.255.255.255",7))
 #End magic packet build
 
-def log(logMessage):
+def log(logMessage: str):
     if logging is True:
         if (os.path.exists(logFile)) is False:
             with open(logFile, "w") as f:
