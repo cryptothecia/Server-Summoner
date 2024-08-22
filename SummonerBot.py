@@ -109,7 +109,6 @@ def summon_server():
 def ask_server(request: str):
     try: 
         host = socket.gethostbyname(DedicatedServerHostname)
-        #host = '127.0.0.1'
         try:
             s.connect((host, port))
             s.send(request.encode())
@@ -144,9 +143,9 @@ def ask_server(request: str):
         askFailure = True
     if request in games and askFailure is True:
         global queuedRequest
+        global requestQueued
         queuedRequest = request
         if requestQueued is False: 
-            global requestQueued
             requestQueued = True
             global requestTime
             requestTime = time.time()
@@ -173,39 +172,10 @@ async def summon(summonedGame,interaction):
     message = ask_server(summonedGame)
     await interaction.followup.send(message,ephemeral=True)
     log(f"Sent to {interaction.user.global_name}: \"" + message + "\"")
-'''
-async def summon(summonedGame,interaction):
-    await interaction.response.defer(ephemeral=True,thinking=True)
-    log(f"{interaction.user.global_name} used {interaction.command.name} in {interaction.channel} in {interaction.guild}")
-    if (os.path.exists(currentGamePath)) is False:
-        with open(currentGamePath, "w") as f:
-            f.write("")
-    with open(currentGamePath, "r+") as f:
-        currentGame = f.read().replace('\n',"")
-        if currentGame == "":
-            f.seek(0)
-            f.write(summonedGame)
-            f.truncate()
-            currentGame = summonedGame
-    if (f"{summonedGame}" in currentGame) and ("Locked" not in currentGame):
-        send_wol()
-        message = f"Bringing {games[summonedGame]} server online."
-    elif "Locked" in currentGame:
-        currentGame = currentGame.replace("Locked","")
-        if currentGame is None:
-            currentGame = "something"
-        message = f"The information I have tells me the dedicated server should already be online running {games[currentGame]}."
-    elif currentGame in games:
-        message = f"The information I have tells me the dedicated server already has a request to bring {games[currentGame]} online."
-    else:
-        message = "Oh dear, something went wrong. Sorry."
-    await interaction.followup.send(message,ephemeral=True)
-    log(f"Sent to {interaction.user.global_name}: \"" + message + "\"")
-'''
     
 ### LIST OF COMMANDS STARTS HERE
 @tree.command(name="summonstatus",description=f"Ask the server ")
-async def summonpalworld(interaction: discord.Interaction):
+async def summonstatus(interaction: discord.Interaction):
     await summon(f"{list(games.keys())[0]}",interaction=interaction)
 
 @tree.command(name="summonpalworld",description=f"Send a request to bring the {games[list(games.keys())[0]]} dedicated server online.")
