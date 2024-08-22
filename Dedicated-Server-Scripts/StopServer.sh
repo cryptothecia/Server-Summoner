@@ -1,6 +1,4 @@
 #!/bin/bash
-cd "$(dirname "$0")" || exit
-source ./.PATHS
 while getopts g: l
 do
 	case "${l}" in
@@ -34,5 +32,4 @@ if [[ $serverStatus == "active" ]]; then
 		echo shutdown | telnet localhost 8081
 	fi
 	sudo systemctl stop "${game}"Server.service
-	echo "" > "${currentGameFullPath}"
 fi
