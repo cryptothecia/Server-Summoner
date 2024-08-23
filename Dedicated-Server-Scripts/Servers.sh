@@ -11,16 +11,20 @@ done
 
 serverLocation=_${game}_ServerLocation
 
-case "${game}" in
-    "Palworld") 
-        "${!serverLocation}" -useperfthreads -NoAsyncLoadingThread -UseMultithreadForDS      echo "ran"
-    ;;
-    "7D2D")
-        "${!serverLocation}" -configfile="${_7D2D_ServerConfig}"
-    ;;
-    "Enshrouded")
-        wine64 "${!serverLocation}"
-    ;;
-    *)
-        "${!serverLocation}"
-esac
+if [ -f "${!serverLocation}" ]; then
+    case "${game}" in
+        "Palworld") 
+            "${!serverLocation}" -useperfthreads -NoAsyncLoadingThread -UseMultithreadForDS      echo "ran"
+        ;;
+        "7D2D")
+            "${!serverLocation}" -configfile="${_7D2D_ServerConfig}"
+        ;;
+        "Enshrouded")
+            wine64 "${!serverLocation}"
+        ;;
+        *)
+            "${!serverLocation}"
+    esac
+else
+    echo "Server location isn't valid."
+fi
