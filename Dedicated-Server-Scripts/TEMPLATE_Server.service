@@ -1,0 +1,13 @@
+[Unit]
+Description=Game Server
+StartLimitBurst=2
+StartLimitIntervalSec=60
+
+[Service]
+User=server
+Restart=always
+RestartSec=5s
+ExecStart=/Servers.sh -g "Game"
+
+[Install]
+WantedBy=multi-user.target

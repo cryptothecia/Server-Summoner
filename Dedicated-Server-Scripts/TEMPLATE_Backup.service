@@ -1,0 +1,13 @@
+[Unit]
+Description=Service for backing up Game server
+StartLimitBurst=2
+StartLimitIntervalSec=60
+
+[Service]
+User=server
+Restart=always
+RestartSec=5s
+ExecStart=/Backup.sh -g  "Game"
+
+[Install]
+WantedBy=multi-user.target

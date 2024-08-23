@@ -1,0 +1,10 @@
+[Unit]
+Description=Stops Game Server
+
+[Service]
+Type=oneshot
+ExecStart=/StopServer.sh -g "Game"
+TimeoutSec=60
+
+[Install]
+WantedBy=multi-user.target
