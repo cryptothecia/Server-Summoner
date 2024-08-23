@@ -103,8 +103,10 @@ def summon_server():
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect((host, port))
                 s.send(queuedRequest.encode())
-                data = s.recv(buffer)
+                reply = s.recv(buffer)
                 s.close()
+                if reply == responsesFromServer[0].replace("game",queuedRequest):
+                    set_bot_status(queuedRequest)
                 requestIsQueued = False
                 queuedRequest = None
                 serverOnline = True
