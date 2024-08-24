@@ -11,7 +11,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-currentGamePath = os.getenv('currentGamePath')
 logging = (os.getenv('logging')) == "True"
 logFile = os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),"summonerlog.txt")
 botOwner = os.getenv('BotOwnerID')
