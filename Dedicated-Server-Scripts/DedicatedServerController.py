@@ -31,7 +31,7 @@ def create_game_services(game: str):
         f.write(serverService)
     with open(path.replace("Server.service","Backup.service"),"w") as f:
         f.write(backupService)   
-    subprocess.run(['sudo','systemctl','daemon-reload', f'{game}Server.service'], text=True)
+    subprocess.run(['sudo','systemctl','daemon-reload'], text=True)
 
 ### Invokes create_game_services if there are no services for the requested game, then checks the status of the services    
 def check_game_services(game: str,backupRequested: bool):
