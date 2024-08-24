@@ -23,14 +23,14 @@ s.listen(1)
 def create_game_services(game: str):
     path = servicePath.replace('*',games[0])
     with open(path,"r") as f:
-        extantServerService=(f.read()).replace(games[0],game).replace("Description=*\n",f"Description={game} server.\n")
+        serverService=(f.read()).replace(games[0],game).replace("Description=*\n",f"Description={game} server.\n")
     with open(path.replace("Server.service","Backup.service"),"r") as f:
-        extantBackupService=(f.read()).replace(games[0],game).replace("Description=*\n",f"Description=Service for backing up {game} server.\n")
+        backupService=(f.read()).replace(games[0],game).replace("Description=*\n",f"Description=Service for backing up {game} server.\n")
     path = path.replace(games[0],game)
     with open(path,"w") as f:
-        f.write(extantServerService)
+        f.write(serverService)
     with open(path.replace("Server.service","Backup.service"),"w") as f:
-        f.write(extantBackupService)   
+        f.write(backupService)   
     subprocess.run(['sudo','systemctl','daemon-reload', f'{game}Server.service'], text=True)
 
 ### Invokes create_game_services if there are no services for the requested game, then checks the status of the services    
