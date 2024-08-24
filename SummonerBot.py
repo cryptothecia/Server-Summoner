@@ -68,7 +68,7 @@ def send_wol(iterations: int = 2):
 ### Logs command usage
 def log(logMessage: str):
     if logging is True:
-        if (os.path.exists(logFile)) is False:
+        if (os.path.isfile(logFile)) is False:
             with open(logFile, "w") as f:
                 f.write("")
         with open(logFile, "a", encoding="utf-8") as f:
@@ -117,7 +117,7 @@ def summon_server():
             print("Summon_server cannot find IP, sleeping.")
             time.sleep(10)
 
-### Sends messages to the Dedicated Server machine that is running DedicatedServerController.py and returns a str to the end user based on results
+### Sends messages to the Dedicated Server machine that is running DedicatedServerController.py and returns a string for the end user based on results
 async def ask_server(request: str):
     try: 
         host = socket.gethostbyname(DedicatedServerHostname)
@@ -128,35 +128,12 @@ async def ask_server(request: str):
             reply = s.recv(buffer)
             reply = reply.decode()
             s.close()
-            match reply: 
-                case reply if reply == responsesFromServer[0].replace("game",request):
-                    await set_bot_status(request)
-                    return reply
-                case reply if responsesFromServer[1] in reply:
-                    activeGames = reply.replace(responsesFromServer[1],"")
-                    if activeGames != "":
-                        i=0
-                        for game in games:
-                            if game in activeGames:
-                                replacement = True
-                                activeGames = activeGames.replace(list(games.keys())[i],games[list(games.keys())[i]])
-                                activeGames = activeGames + " and "
-                            i+=1
-                        if replacement == True:
-                            activeGames = activeGames[:-5]
-                        await set_bot_status(activeGames)
-                        return askServerReturnMessages[2].replace("game",activeGames)
-                    else:
-                        await set_bot_status()
-                        return askServerReturnMessages[3]
-                case _:
-                    return askServerReturnMessages[4]
         except: 
             print("Server has IP but not answering.")
             askFailure = True
     except: 
         print("Server does not have IP.")
-        askFailure = True
+        askFailure = True            
     if request in games and askFailure is True:
         global queuedRequest
         global requestIsQueued
@@ -173,9 +150,35 @@ async def ask_server(request: str):
                 return askServerReturnMessages[1].replace("time",f"{(time.time() - requestTime)/60:.0f}")
             else:
                 return askServerReturnMessages[0].replace("game",request)
-    else:
+    elif askFailure is True:
         await set_bot_status()
         return askServerReturnMessages[5]
+    try:
+        match reply: 
+            case reply if reply == responsesFromServer[0].replace("game",request):
+                await set_bot_status(request)
+                return reply
+            case reply if responsesFromServer[1] in reply:
+                activeGames = reply.replace(responsesFromServer[1],"")
+                if activeGames != "":
+                    i=0
+                    for game in games:
+                        if game in activeGames:
+                            replacement = True
+                            activeGames = activeGames.replace(list(games.keys())[i],games[list(games.keys())[i]])
+                            activeGames = activeGames + " and "
+                        i+=1
+                    if replacement == True:
+                        activeGames = activeGames[:-5]
+                    await set_bot_status(activeGames)
+                    return askServerReturnMessages[2].replace("game",activeGames)
+                else:
+                    await set_bot_status()
+                    return askServerReturnMessages[3]
+            case _:
+                return askServerReturnMessages[4]
+    except:
+        pass
 
 @bot.event
 async def on_ready():
