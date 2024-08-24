@@ -10,8 +10,7 @@ do
 	esac
 done
 
-log()
-{
+log(){
     echo "$(date +%Y/%m/%d_%H:%M:%S):: $*" >> "$saveLog"
 }
 
