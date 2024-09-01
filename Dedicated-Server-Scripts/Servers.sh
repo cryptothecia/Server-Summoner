@@ -33,8 +33,7 @@ if [[ -f $serverLocation ]]; then
             if [[ -n $appID ]]; then 
                 updateScriptTemplate=$(cat ./update_game_template.txt)
                 updateScriptBody=${updateScriptTemplate//appid/$appID}
-                updateScriptBody=${updateScriptBody//steam-library/$steamappsFolder}
-                updateScriptBody=${updateScriptBody//steamapps/}
+                updateScriptBody=${updateScriptBody//steam-library/$serverFolder}
                 echo "$updateScriptBody" > "$updateScript"
                 steamcmd +runscript "$updateScript"
             fi
