@@ -13,6 +13,7 @@ serverLocation=_${game}_ServerLocation
 serverLocation="${!serverLocation}"
 
 if [[ -f $serverLocation ]]; then
+if false; then
     ### Gets server directory by searching for index of last slash
     slashIndex=$(echo "$serverLocation" | grep -ob "/" | tail -n 1 | tr -d :/)
     serverFolder=${serverLocation:0:(slashIndex + 1)}
@@ -51,6 +52,7 @@ if [[ -f $serverLocation ]]; then
     elif [[ -z $steamCMDcheck ]]; then
         echo "SteamCMD is not installed."
     fi
+fi
     case "${game}" in
         "Palworld") 
             "$serverLocation" -useperfthreads -NoAsyncLoadingThread -UseMultithreadForDS      echo "ran"
