@@ -214,7 +214,7 @@ async def summonenshrouded(interaction: discord.Interaction):
 ### ADMIN ONLY COMMANDS
 @tree.command(name="summonlogs",description=f"ADMIN ONLY. Returns latest log entries.")
 @app_commands.check(is_owner)
-async def summonlogs(interaction: discord.Interaction,number_of_lines: int = 10):
+async def summonlogs(interaction: discord.Interaction,number_of_lines: int = 20):
     await interaction.response.defer(ephemeral=True,thinking=True)
     message = []
     with open(logFile, "r", encoding="utf-8") as f:
