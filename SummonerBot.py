@@ -118,6 +118,7 @@ def summon_server():
 
 ### Sends messages to the Dedicated Server machine that is running DedicatedServerController.py and returns a string for the end user based on results
 async def ask_server(request: str):
+    askFailure = False
     try: 
         host = socket.gethostbyname(DedicatedServerHostname)
         try:
