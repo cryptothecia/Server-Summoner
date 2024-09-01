@@ -1,0 +1,4 @@
+force_install_dir steam-library
+login anonymous
+app_update appid
+quit
