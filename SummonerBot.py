@@ -29,7 +29,7 @@ games = {
     "Palworld" : "Palworld",
     "7D2D" : "7 Days to Die",
     "Enshrouded" : "Enshrouded",
-    "ARKSE" : "ARK: Survival Evolved"
+    "ARKSE" : r"ARK: Survival Evolved"
 }
 responsesFromServer = [
     "Bringing game server online.",
@@ -158,6 +158,7 @@ async def ask_server(request: str):
         match reply: 
             case reply if reply == responsesFromServer[0].replace("game",request):
                 await set_bot_status(request)
+                reply = reply.replace(request,games[request])
                 return reply
             case reply if responsesFromServer[1] in reply:
                 activeGames = reply.replace(responsesFromServer[1],"")
