@@ -81,7 +81,7 @@ def reply(request):
                 return " running"
             else: 
                 return ''.join(activeGames) + " running"
-        case request if request is not "status":
+        case request if request != "status":
             serverStatus, backupStatus = check_game_services(request,True)
             if serverStatus == "inactive":
                 activeGames = get_current_game()
