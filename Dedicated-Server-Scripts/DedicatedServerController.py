@@ -3,21 +3,23 @@ import subprocess
 import glob
 import os
 
-# Build list of games that the dedicated server can run
 servicePath = '/etc/systemd/system/*Server.service'
-games = glob.glob(servicePath)
-i = 0
-for game in games:
-    games[i] = game.replace((servicePath.split("*"))[0],'').replace((servicePath.split("*"))[1],'')
-    i+=1
-# End game list build
-
+games=[]
 host = ''
 port = 62487
 buffer_size = 20
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((host, port))
 s.listen(1)
+
+# Build list of games that the dedicated server can run
+def get_games():
+    global games
+    games = glob.glob(servicePath)
+    i = 0
+    for game in games:
+        games[i] = game.replace((servicePath.split("*"))[0],'').replace((servicePath.split("*"))[1],'')
+        i+=1
 
 ### Assuming any Server.service exists, creates new Server and Backup .services for the requested game  
 def create_game_services(game: str):
@@ -35,6 +37,7 @@ def create_game_services(game: str):
         f.write(backupService)   
     with open(path.replace("Server.service","ServerStop.service"),"w") as f:
         f.write(serverStopService)  
+    get_games()
     subprocess.run(['sudo','systemctl','daemon-reload'], text=True)
 
 ### Invokes create_game_services if there are no services for the requested game, then checks the status of the services    
@@ -77,7 +80,7 @@ def reply(request):
                 return " running"
             else: 
                 return ''.join(activeGames) + " running"
-        case request if request in games:
+        case request if request is not "status":
             serverStatus, backupStatus = check_game_services(request,True)
             if serverStatus == "inactive":
                 activeGames = get_current_game()
@@ -96,14 +99,19 @@ def reply(request):
         case _:
             return "No request made"
 
-### Loop for socket to listen for and send responses to requests from SummonerBot.py
-conn, addr = s.accept()
-while True:
-    request = conn.recv(buffer_size).decode()
-    if request: 
-        print('received:', request)
-        answer = reply(request)
-        print('sent:', answer)
-        conn.send(answer.encode())
-    if not request: 
-        conn, addr = s.accept()
+def main():
+    get_games()
+    ### Loop for socket to listen for and send responses to requests from SummonerBot.py
+    conn, addr = s.accept()
+    while True:
+        request = conn.recv(buffer_size).decode()
+        if request: 
+            print('received:', request)
+            answer = reply(request)
+            print('sent:', answer)
+            conn.send(answer.encode())
+        if not request: 
+            conn, addr = s.accept()
+
+if __name__ == '__main__':
+    main()
