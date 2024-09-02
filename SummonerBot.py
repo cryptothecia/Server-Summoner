@@ -28,7 +28,8 @@ requestTime = None
 games = {
     "Palworld" : "Palworld",
     "7D2D" : "7 Days to Die",
-    "Enshrouded" : "Enshrouded"
+    "Enshrouded" : "Enshrouded",
+    "ARKSE" : "ARK: Survival Evolved"
 }
 responsesFromServer = [
     "Bringing game server online.",
@@ -210,6 +211,10 @@ async def summon7days(interaction: discord.Interaction):
 @tree.command(name="summonenshrouded",description=f"Send a request to bring the {games[list(games.keys())[2]]} dedicated server online.")
 async def summonenshrouded(interaction: discord.Interaction):
     await summon(f"{list(games.keys())[2]}",interaction=interaction)
+
+@tree.command(name="summonarkse",description=f"Send a request to bring the {games[list(games.keys())[3]]} dedicated server online.")
+async def summonarkse(interaction: discord.Interaction):
+    await summon(f"{list(games.keys())[3]}",interaction=interaction)
 
 ### ADMIN ONLY COMMANDS
 @tree.command(name="summonlogs",description=f"ADMIN ONLY. Returns latest log entries.")
