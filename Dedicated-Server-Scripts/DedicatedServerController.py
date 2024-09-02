@@ -30,15 +30,14 @@ def create_game_services(game: str):
         backupService=(f.read()).replace(games[0],game).replace("Description=*\n",f"Description=Service for backing up {game} server.\n")
     with open(path.replace("Server.service","ServerStop.service"),"r") as f:
         serverStopService=(f.read()).replace(games[0],game).replace("Description=*\n",f"Description=Stops {game} server.\n")
+    def create_service(servicePath, serviceBody):
+        with open(servicePath,"w") as f:
+            f.write(serviceBody)
+        subprocess.run(["sudo", "chmod", "+x", servicePath], text=True)
     path = path.replace(games[0],game)
-    with open(path,"w") as f:
-        f.write(serverService)
-    with open(path.replace("Server.service","Backup.service"),"w") as f:
-        f.write(backupService)   
-    with open(path.replace("Server.service","ServerStop.service"),"w") as f:
-        f.write(serverStopService)  
-    path = servicePath.replace("*Server.service",f"{game}*")
-    subprocess.run(["sudo", "chmod", "+x", path], text=True)
+    create_service(path,serverService)
+    create_service(path.replace("Server.service","Backup.service"),backupService)
+    create_service(path.replace("Server.service","ServerStop.service"),serverStopService)
     get_games()
     subprocess.run(['sudo','systemctl','daemon-reload'], text=True)
 
