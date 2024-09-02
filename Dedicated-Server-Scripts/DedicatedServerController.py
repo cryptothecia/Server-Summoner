@@ -37,7 +37,8 @@ def create_game_services(game: str):
         f.write(backupService)   
     with open(path.replace("Server.service","ServerStop.service"),"w") as f:
         f.write(serverStopService)  
-    subprocess.run(["sudo", "chmod", "+x", f"{game}*"], text=True)
+    path = servicePath.replace("*Server.service",f"{game}*")
+    subprocess.run(["sudo", "chmod", "+x", path], text=True)
     get_games()
     subprocess.run(['sudo','systemctl','daemon-reload'], text=True)
 
