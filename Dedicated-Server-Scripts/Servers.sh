@@ -45,7 +45,7 @@ if [[ -f $serverLocation ]]; then
     fi
     case "${game}" in
         "Palworld") 
-            "$serverLocation" -useperfthreads -NoAsyncLoadingThread -UseMultithreadForDS      echo "ran"
+            "$serverLocation" -useperfthreads -NoAsyncLoadingThread -UseMultithreadForDS -NoSteam      echo "ran"
         ;;
         "7D2D")
             "$serverLocation" -configfile="${_7D2D_ServerConfig}"
