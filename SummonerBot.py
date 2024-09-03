@@ -91,7 +91,7 @@ async def set_bot_status(status=None):
         await bot.change_presence(activity=discord.Game(name=f"{status}"))
 
 ### This is only used in a seperate thread to wake up the Dedicated Server machine
-def summon_server():
+def wake_server():
     serverOnline = False
     while serverOnline is not True:
         send_wol()
@@ -111,10 +111,10 @@ def summon_server():
                 queuedRequest = None
                 serverOnline = True
             except: 
-                print("Summon_server can find IP but can't send a message, sleeping.")
+                print("wake_server can find IP but can't send a message, sleeping.")
                 time.sleep(10)
         except:
-            print("Summon_server cannot find IP, sleeping.")
+            print("wake_server cannot find IP, sleeping.")
             time.sleep(10)
 
 ### Sends messages to the Dedicated Server machine that is running DedicatedServerController.py and returns a string for the end user based on results
@@ -143,7 +143,7 @@ async def ask_server(request: str):
             requestIsQueued = True
             global requestTime
             requestTime = time.time()
-            thread = Thread(target=summon_server,daemon=True)
+            thread = Thread(target=wake_server,daemon=True)
             thread.start()
             return askServerReturnMessages[0].replace("game",request)
         else:
