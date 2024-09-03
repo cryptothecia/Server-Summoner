@@ -106,7 +106,7 @@ def summon_server():
                 reply = s.recv(buffer)
                 s.close()
                 if reply == responsesFromServer[0].replace("game",queuedRequest):
-                    set_bot_status(queuedRequest)
+                    set_bot_status(games[queuedRequest])
                 requestIsQueued = False
                 queuedRequest = None
                 serverOnline = True
@@ -157,7 +157,7 @@ async def ask_server(request: str):
     try:
         match reply: 
             case reply if reply == responsesFromServer[0].replace("game",request):
-                await set_bot_status(request)
+                await set_bot_status(games[request])
                 reply = reply.replace(request,games[request])
                 return reply
             case reply if responsesFromServer[1] in reply:
