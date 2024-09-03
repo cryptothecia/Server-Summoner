@@ -20,6 +20,7 @@ if [[ -f $serverLocation ]]; then
     while [[ ! -d $steamappsFolder ]]; do
         serverFolder=${serverFolder:0:(${#serverFolder}-1)}
         slashIndex=$(echo "$serverFolder" | grep -ob "/" | tail -n 1 | tr -d :/)
+        serverFolder=${serverFolder:0:(slashIndex + 1)}
         steamappsFolder="$serverFolder"steamapps
     done
     ### Checks if steamcmd is a valid command
