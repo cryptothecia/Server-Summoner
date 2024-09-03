@@ -21,7 +21,7 @@ def get_games():
         games[i] = game.replace((servicePath.split("*"))[0],'').replace((servicePath.split("*"))[1],'')
         i+=1
 
-### Assuming any Server.service exists, creates new Server and Backup .services for the requested game  
+### Assuming any Server.service exists, creates new Server, ServerStop and Backup .services for the requested game  
 def create_game_services(game: str):
     path = servicePath.replace('*',games[0])
     with open(path,"r") as f:
@@ -33,7 +33,8 @@ def create_game_services(game: str):
     def create_service(servicePath, serviceBody):
         with open(servicePath,"w") as f:
             f.write(serviceBody)
-        subprocess.run(["sudo", "chmod", "+x", servicePath], text=True)
+        if (os.path.isfile(servicePath)) is True:
+            subprocess.run(["sudo", "chmod", "+x", servicePath], text=True)
     path = path.replace(games[0],game)
     create_service(path,serverService)
     create_service(path.replace("Server.service","Backup.service"),backupService)
@@ -74,6 +75,7 @@ def get_current_game():
 
 ### Invokes functions in response to requests from SummonerBot.py, always returning a string as an answer
 def reply(request):
+    request=''.join(c for c in request if c.isalnum())
     match request:
         case "status":
             activeGames = get_current_game()
