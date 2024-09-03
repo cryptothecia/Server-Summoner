@@ -7,6 +7,7 @@ import datetime
 import time
 from threading import *
 from discord import app_commands
+from discord.ext import tasks, commands
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -186,7 +187,12 @@ async def ask_server(request: str):
 async def on_ready():
     log("")
     log(f'{bot.user} has connected to Discord!')
+    auto_status_update.start()
     await tree.sync() 
+
+@tasks.loop(seconds=600.0)
+async def auto_status_update():
+    await ask_server("status")
 
 ### Mostly just a wrapper for ask_server
 async def summon(summonedGame,interaction):
