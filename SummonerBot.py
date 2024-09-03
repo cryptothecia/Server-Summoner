@@ -88,7 +88,7 @@ async def set_bot_status(status=None):
     if status is None:
         await bot.change_presence()
     else: 
-        await bot.change_presence(activity=discord.Game(name=f"{games[status]}"))
+        await bot.change_presence(activity=discord.Game(name=f"{status}"))
 
 ### This is only used in a seperate thread to wake up the Dedicated Server machine
 def summon_server():
