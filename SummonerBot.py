@@ -95,6 +95,7 @@ async def set_bot_status(status=None):
 ### This is only used in a seperate thread to wake up the Dedicated Server machine
 def wake_server():
     serverOnline = False
+    wakeLoops = 0
     while serverOnline is not True:
         send_wol()
         try: 
@@ -118,6 +119,10 @@ def wake_server():
         except:
             print("wake_server cannot find IP, sleeping.")
             time.sleep(10)
+        wakeLoops += 1
+        if wakeLoops > 20:
+            print("wake_server has run more than 20 times, stopping wake_server")
+            break
 
 ### Sends messages to the Dedicated Server machine that is running DedicatedServerController.py and returns a string for the end user based on results
 async def ask_server(request: str):
