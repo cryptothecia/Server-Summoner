@@ -125,6 +125,7 @@ def main():
         request = conn.recv(buffer_size).decode()
         if request: 
             print('received: ', request, 'from: ', addr[0])
+            ### Checks addr IP against the IP of botHost, defined by get_bot_host(). If IP is not the same, no action should be taken and a reject message sent. This check doesn't happen if botHost ends up blank
             if botHost != '' and addr[0] == botHost:
                 answer = reply(request)
             elif botHost != '' and addr[0] != botHost:
