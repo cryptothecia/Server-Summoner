@@ -124,10 +124,10 @@ def main():
     while True:
         request = conn.recv(buffer_size).decode()
         if request: 
-            print('received: ', request, 'from: ', addr)
-            if botHost != '' and addr == botHost:
+            print('received: ', request, 'from: ', addr[0])
+            if botHost != '' and addr[0] == botHost:
                 answer = reply(request)
-            elif botHost != '' and addr != botHost:
+            elif botHost != '' and addr[0] != botHost:
                 answer = "Rejected request."
             print('sent: ', answer)
             conn.send(answer.encode())
