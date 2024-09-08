@@ -125,9 +125,9 @@ def main():
         request = conn.recv(buffer_size).decode()
         if request: 
             print('received: ', request, 'from: ', addr)
-            if botHost is not '' and addr == botHost:
+            if botHost != '' and addr == botHost:
                 answer = reply(request)
-            elif botHost is not '' and addr != botHost:
+            elif botHost != '' and addr != botHost:
                 answer = "Rejected request."
             print('sent: ', answer)
             conn.send(answer.encode())
