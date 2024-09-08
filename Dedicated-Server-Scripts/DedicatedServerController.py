@@ -4,7 +4,8 @@ import glob
 import os
 
 servicePath = '/etc/systemd/system/*Server.service'
-games=[]
+games = []
+botHost = ''
 host = ''
 port = 62487
 buffer_size = 20
@@ -12,7 +13,20 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((host, port))
 s.listen(1)
 
-# Build list of games that the dedicated server can run
+### Get hostname of machine hosting SummonerBot.py from .PATHS
+def get_bot_host():
+    global botHost
+    PATHSfile = os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),".PATHS")
+    with open(PATHSfile,"r", encoding="utf-8") as f:
+        for line in f.readlines():
+            if "botHost=" in line:
+                botHost = line.replace("botHost=",'')
+                botHost = botHost.strip()
+                if botHost != '':
+                    botHost = socket.gethostbyname(botHost)
+                break
+
+### Build list of games that the dedicated server can run
 def get_games():
     global games
     games = glob.glob(servicePath)
@@ -103,15 +117,19 @@ def reply(request):
             return "No request made"
 
 def main():
+    get_bot_host()
     get_games()
     ### Loop for socket to listen for and send responses to requests from SummonerBot.py
     conn, addr = s.accept()
     while True:
         request = conn.recv(buffer_size).decode()
         if request: 
-            print('received:', request)
-            answer = reply(request)
-            print('sent:', answer)
+            print('received: ', request, 'from: ', addr)
+            if botHost is not '' and addr == botHost:
+                answer = reply(request)
+            elif botHost is not '' and addr != botHost:
+                answer = "Rejected request."
+            print('sent: ', answer)
             conn.send(answer.encode())
         if not request: 
             conn, addr = s.accept()
