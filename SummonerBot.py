@@ -228,11 +228,11 @@ async def summonenshrouded(interaction: discord.Interaction):
 @tree.command(name="summonarkse",description=f"Send a request to bring the {games[list(games.keys())[3]]} dedicated server online.")
 async def summonarkse(interaction: discord.Interaction):
     await summon(f"{list(games.keys())[3]}",interaction=interaction)
-'''
+
 @tree.command(name="summonsatisfactory",description=f"Send a request to bring the {games[list(games.keys())[4]]} dedicated server online.")
 async def summonsatisfactory(interaction: discord.Interaction):
     await summon(f"{list(games.keys())[4]}",interaction=interaction)
-'''
+
 ### ADMIN ONLY COMMANDS
 @tree.command(name="summonlogs",description=f"ADMIN ONLY. Returns latest log entries.")
 @app_commands.check(is_owner)
