@@ -44,7 +44,7 @@ if [[ -f $serverLocation ]]; then
                 echo "Creating new update script."
             fi
             if [[ -f "$updateScript" ]]; then
-                steamcmd +runscript "$updateScript"
+                /usr/games/steamcmd +runscript "$updateScript"
                 echo "Running update script."
             elif [[ ! -f "$updateScript" ]]; then
                 echo "Update script file not found after attempt at creating it."
