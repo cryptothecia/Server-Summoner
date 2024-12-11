@@ -212,6 +212,10 @@ async def summon(summonedGame,interaction):
 @tree.command(name="summonstatus",description=f"Get server status.")
 async def summonstatus(interaction: discord.Interaction):
     await summon("status",interaction=interaction)
+    
+@tree.command(name="summon",description=f"Send a request to bring a game server online.")
+async def summon(interaction: discord.Interaction, game: str):
+    await summon("status",interaction=interaction)
 
 @tree.command(name="summonpalworld",description=f"Send a request to bring the {games[list(games.keys())[0]]} dedicated server online.")
 async def summonpalworld(interaction: discord.Interaction):
