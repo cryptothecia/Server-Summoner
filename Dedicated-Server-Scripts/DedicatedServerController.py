@@ -2,8 +2,11 @@ import socket
 import subprocess
 import glob
 import os
+import urllib.request
 
 servicePath = '/etc/systemd/system/*Server.service'
+PATHSfile = os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),".PATHS")
+external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
 games = []
 botHost = ''
 host = ''
@@ -13,18 +16,21 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((host, port))
 s.listen(1)
 
+### Function for searching .PATHS for different variables
+def read_PATHS(query):
+    with open(PATHSfile,"r", encoding="utf-8") as f:
+        for line in f.readlines():
+            if query in line:
+                result = line.replace(query,'')
+                result = result.strip()
+                return result
+
 ### Get hostname of machine hosting SummonerBot.py from .PATHS
 def get_bot_host():
     global botHost
-    PATHSfile = os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),".PATHS")
-    with open(PATHSfile,"r", encoding="utf-8") as f:
-        for line in f.readlines():
-            if "botHost=" in line:
-                botHost = line.replace("botHost=",'')
-                botHost = botHost.strip()
-                if botHost != '':
-                    botHost = socket.gethostbyname(botHost)
-                break
+    botHost = read_PATHS("botHost=")
+    if botHost != '':
+        botHost = socket.gethostbyname(botHost)
 
 ### Build list of games that the dedicated server can run
 def get_games():
@@ -96,7 +102,12 @@ def reply(request):
             if activeGames == None: 
                 return " running"
             else: 
-                return ''.join(activeGames) + " running"
+                r = ''.join(activeGames)
+                if r in games:
+                    rPort = read_PATHS(f"_{r}_Port=")
+                    return r + f" running::{external_ip}::{rPort}"
+                else:
+                    return r + f" running::0"
         case request if request != "status":
             serverStatus, backupStatus = check_game_services(request,True)
             if serverStatus == "inactive":
@@ -108,9 +119,9 @@ def reply(request):
                     start_game_services(request,backupRequest)
                     return f"Bringing {request} server online."
                 else:
-                    return ''.join(activeGames) + " running"
+                    return ''.join(activeGames) + f" running::{external_ip}"
             elif serverStatus == "active":
-                return f"{request} running"
+                return f"{request} running::{external_ip}::{read_PATHS(f"_{request}_Port=")}"
             else:
                 return "Error"
         case _:

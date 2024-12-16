@@ -9,44 +9,30 @@ from threading import *
 from discord import app_commands
 from discord.ext import tasks, commands
 from dotenv import load_dotenv
+from typing import Literal
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 logging = (os.getenv('logging')) == "True"
 logFile = os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),"summonerlog.txt")
 botOwner = os.getenv('BotOwnerID')
+DedicatedServerHostname = os.getenv('DedicatedServerHostname')
 intents = discord.Intents.default()
 intents.message_content = True
 bot = discord.Client(intents=intents)
 tree = app_commands.CommandTree(bot)
-DedicatedServerHostname = os.getenv('DedicatedServerHostname')
 port = 62487
 buffer = 1024
 requestIsQueued = False
-queuedRequest = None
-queuedRequestTime = None
-requestTime = None
+queuedRequest = queuedRequestTime = requestTime = None
+        
 games = {
-    "Palworld" : "Palworld",
-    "7D2D" : "7 Days to Die",
-    "Enshrouded" : "Enshrouded",
-    "ARKSE" : r"ARK: Survival Evolved",
-    "Satisfactory" : "Satisfactory"
+    "Palworld" : {"LongName" : "Palworld", "AppID" : 0, "Port" : 0},
+    "7D2D" : {"LongName" : "7 Days to Die", "AppID" : 0, "Port" : 0},
+    "Enshrouded" : {"LongName" : "Enshrouded", "AppID" : 0, "Port" : 0},
+    "ARKSE" : {"LongName" : r"ARK: Survival Evolved", "AppID" : 0, "Port" : 0},
+    "Satisfactory" : {"LongName" : "Satisfactory", "AppID" : 0, "Port" : 0}
 }
-responsesFromServer = [
-    "Bringing game server online.",
-    " running",
-    "Error",
-    "No request made"
-]
-askServerReturnMessages = [
-    responsesFromServer[0],
-    "The dedicated server was requested to come online time minutes ago, but is still not responding.",
-    "The dedicated server reports it is online running game.",
-    "The dedicated server is online but not running any games.",
-    "Oh dear, something went wrong. Sorry.",
-    "The dedicated server is not online."
-]
 
 #This section builds information for sending magic packets
 MAC = os.getenv('DedicatedServerMAC')
@@ -92,6 +78,21 @@ async def set_bot_status(status=None):
     else: 
         await bot.change_presence(activity=discord.Game(name=f"{status}"))
 
+responsesFromServer = [
+    "Bringing {game} server online.",
+    " running",
+    "Error",
+    "No request made"
+]
+askServerReturnMessages = {
+    "Starting" : responsesFromServer[0],
+    "Timeout" : "The dedicated server was requested to come online {time} minutes ago, but is still not responding.",
+    "Started" : "The dedicated server reports it is online running {game} at {ip}:{port}.",
+    "Idle" : "The dedicated server is online but not running any games.",
+    "Error" : "Oh dear, something went wrong. Sorry.",
+    "Offline" : "The dedicated server is not online."
+}
+
 ### This is only used in a seperate thread to wake up the Dedicated Server machine
 def wake_server():
     serverOnline = False
@@ -109,7 +110,7 @@ def wake_server():
                 reply = s.recv(buffer)
                 s.close()
                 if reply == responsesFromServer[0].replace("game",queuedRequest):
-                    set_bot_status(games[queuedRequest])
+                    set_bot_status(games[queuedRequest]["LongName"])
                 requestIsQueued = False
                 queuedRequest = None
                 serverOnline = True
@@ -124,6 +125,12 @@ def wake_server():
             print("wake_server has run more than 20 times, stopping wake_server")
             break
 
+class Reply:
+    def __init__(self, text, ip=0, port=0):
+        self.text = text
+        self.ip = ip
+        self.port = port
+
 ### Sends messages to the Dedicated Server machine that is running DedicatedServerController.py and returns a string for the end user based on results
 async def ask_server(request: str):
     askFailure = False
@@ -133,9 +140,10 @@ async def ask_server(request: str):
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((host, port))
             s.send(request.encode())
-            reply = s.recv(buffer)
-            reply = reply.decode()
+            rawReply = s.recv(buffer)
+            rawReply = reply.decode()
             s.close()
+            reply = Reply(rawReply.split("::"))
         except: 
             print("Server has IP but not answering.")
             askFailure = True
@@ -152,40 +160,39 @@ async def ask_server(request: str):
             requestTime = time.time()
             thread = Thread(target=wake_server,daemon=True)
             thread.start()
-            return askServerReturnMessages[0].replace("game",request)
+            return askServerReturnMessages["Starting"].format(game = games[request]["LongName"])
         else:
             if (time.time() - requestTime) > (10*60):
-                return askServerReturnMessages[1].replace("time",f"{(time.time() - requestTime)/60:.0f}")
+                return askServerReturnMessages["Timeout"].format(time = f"{(time.time() - requestTime)/60:.0f}")
             else:
-                return askServerReturnMessages[0].replace("game",request)
+                return askServerReturnMessages["Starting"].format(game = games[request]["LongName"])
     elif askFailure is True:
         await set_bot_status()
-        return askServerReturnMessages[5]
+        return askServerReturnMessages["Offline"]
     try:
-        match reply: 
-            case reply if reply == responsesFromServer[0].replace("game",request):
-                await set_bot_status(games[request])
-                reply = reply.replace(request,games[request])
-                return reply
-            case reply if responsesFromServer[1] in reply:
-                activeGames = reply.replace(responsesFromServer[1],"")
+        match reply.text: 
+            case reply.text if reply.text == responsesFromServer[0].format(game = request):
+                await set_bot_status(games[request]["LongName"])
+                return askServerReturnMessages["Starting"].format(game = games[request]["LongName"].replace(".","") + f" at {reply.ip}:{reply.port}.")
+            case reply.text if responsesFromServer[1] in reply.text:
+                activeGames = reply.text.replace(responsesFromServer[1],"")
                 if activeGames != "":
                     i=0
                     for game in games:
                         if game in activeGames:
                             replacement = True
-                            activeGames = activeGames.replace(list(games.keys())[i],games[list(games.keys())[i]])
+                            activeGames = activeGames.replace(list(games.keys())[i],games[list(games.keys())[i]]["LongName"])
                             activeGames = activeGames + " and "
                         i+=1
                     if replacement == True:
                         activeGames = activeGames[:-5]
                     await set_bot_status(activeGames)
-                    return askServerReturnMessages[2].replace("game",activeGames)
+                    return askServerReturnMessages["Started"].format(game = activeGames, ip = reply.ip, port = reply.port)
                 else:
                     await set_bot_status()
-                    return askServerReturnMessages[3]
+                    return askServerReturnMessages["Idle"]
             case _:
-                return askServerReturnMessages[4]
+                return askServerReturnMessages["Error"]
     except:
         pass
 
@@ -212,26 +219,11 @@ async def summon(summonedGame,interaction):
 @tree.command(name="summonstatus",description=f"Get server status.")
 async def summonstatus(interaction: discord.Interaction):
     await summon("status",interaction=interaction)
-
-@tree.command(name="summonpalworld",description=f"Send a request to bring the {games[list(games.keys())[0]]} dedicated server online.")
-async def summonpalworld(interaction: discord.Interaction):
-    await summon(f"{list(games.keys())[0]}",interaction=interaction)
-
-@tree.command(name="summon7days",description=f"Send a request to bring the {games[list(games.keys())[1]]} dedicated server online.")
-async def summon7days(interaction: discord.Interaction):
-    await summon(f"{list(games.keys())[1]}",interaction=interaction)
-
-@tree.command(name="summonenshrouded",description=f"Send a request to bring the {games[list(games.keys())[2]]} dedicated server online.")
-async def summonenshrouded(interaction: discord.Interaction):
-    await summon(f"{list(games.keys())[2]}",interaction=interaction)
-
-@tree.command(name="summonarkse",description=f"Send a request to bring the {games[list(games.keys())[3]]} dedicated server online.")
-async def summonarkse(interaction: discord.Interaction):
-    await summon(f"{list(games.keys())[3]}",interaction=interaction)
-
-@tree.command(name="summonsatisfactory",description=f"Send a request to bring the {games[list(games.keys())[4]]} dedicated server online.")
-async def summonsatisfactory(interaction: discord.Interaction):
-    await summon(f"{list(games.keys())[4]}",interaction=interaction)
+    
+@tree.command(name="summongame",description=f"Send a request to bring a game server online.")
+async def summongame(interaction: discord.Interaction, 
+                     game: Literal[tuple(games.keys())]):
+    await summon(game,interaction=interaction)
 
 ### ADMIN ONLY COMMANDS
 @tree.command(name="summonlogs",description=f"ADMIN ONLY. Returns latest log entries.")
