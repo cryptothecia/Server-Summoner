@@ -126,10 +126,16 @@ def wake_server():
             break
 
 class Reply:
-    def __init__(self, text, ip=0, port=0):
-        self.text = text
-        self.ip = ip
-        self.port = port
+    def __init__(self, rawReply):
+        self.text = rawReply[0]
+        try:
+            self.ip = rawReply[1]
+        except: 
+            self.ip = "0"
+        try: 
+            self.port = rawReply[2]
+        except: 
+            self.port = "0"
 
 ### Sends messages to the Dedicated Server machine that is running DedicatedServerController.py and returns a string for the end user based on results
 async def ask_server(request: str):
@@ -141,15 +147,16 @@ async def ask_server(request: str):
             s.connect((host, port))
             s.send(request.encode())
             rawReply = s.recv(buffer)
-            rawReply = reply.decode()
+            rawReply = rawReply.decode()
             s.close()
             reply = Reply(rawReply.split("::"))
+            print(reply.text)
         except: 
             print("Server has IP but not answering.")
             askFailure = True
     except: 
         print("Server does not have IP.")
-        askFailure = True            
+        askFailure = True      
     if request in games and askFailure is True:
         global queuedRequest
         global requestIsQueued
