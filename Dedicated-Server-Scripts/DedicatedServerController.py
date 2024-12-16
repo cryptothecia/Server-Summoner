@@ -138,7 +138,7 @@ def main():
     conn, addr = s.accept()
     while True:
         #request = conn.recv(buffer_size).decode()
-        request = conn.recv(buffer_size).decode()
+        request = conn.recv(buffer_size)
         if request: 
             request = fernet.decrypt(request).decode()
             print('received: ', request, 'from: ', addr[0])
