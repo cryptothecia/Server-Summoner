@@ -132,16 +132,14 @@ def main():
     get_bot_host()
     get_games()
     DedicatedServerToken = read_PATHS("DedicatedServerToken=")
-    print(DedicatedServerToken)
     fernet = Fernet(DedicatedServerToken)
     ### Loop for socket to listen for and send responses to requests from SummonerBot.py
     conn, addr = s.accept()
     while True:
-        #request = conn.recv(buffer_size).decode()
         request = conn.recv(buffer_size)
         if request: 
-            print('received: ', request, 'from: ', addr[0])
             request = fernet.decrypt(request).decode()
+            print('received: ', request, 'from: ', addr[0])
             ### Checks addr IP against the IP of botHost, defined by get_bot_host(). If IP is not the same, no action should be taken and a reject message sent. This check doesn't happen if botHost ends up blank
             if botHost != '' and addr[0] == botHost:
                 answer = reply(request)
