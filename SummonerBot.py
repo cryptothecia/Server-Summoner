@@ -98,6 +98,49 @@ askServerReturnMessages = {
     "Offline" : "The dedicated server is not online."
 }
 
+### Builds salt string for messages between SummonerBot and Dedicated Server Controller
+def make_salt():
+    global salt
+    salt = ''
+    chars = string.ascii_letters + string.punctuation + string.digits
+    chars = chars.replace(':','')
+    salt = ''.join(random.choice(chars) for x in range(10))
+
+def encrypt_message(message):
+    make_salt()
+    message = salt + "::" + message
+    return fernet.encrypt(message.encode())
+
+def decrypt_message(message):
+    message = fernet.decrypt(message).decode()
+    message = message.split("::")
+    del message[0]
+    return message
+
+class Reply:
+    def __init__(self, rawReply):
+        self.text = rawReply[0]
+        try:
+            self.ip = rawReply[1]
+        except: 
+            self.ip = "0"
+        try: 
+            self.port = rawReply[2]
+        except: 
+            self.port = "0"
+
+### Function for sending a message to the Dedicated Server Controller machine and receiving a reply, includes the encryption/decryption functions
+def send_message(message, host):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((host, port))
+    s.send(encrypt_message(message))
+    rawReply = s.recv(buffer)
+    s.close()
+    reply = decrypt_message(rawReply)
+    print(reply)
+    reply = Reply(''.join(reply).split("::"))
+    return reply
+
 ### This is only used in a seperate thread to wake up the Dedicated Server machine
 def wake_server():
     serverOnline = False
@@ -109,11 +152,7 @@ def wake_server():
             try:
                 global requestIsQueued
                 global queuedRequest
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.connect((host, port))
-                s.send(queuedRequest.encode())
-                reply = s.recv(buffer)
-                s.close()
+                reply = send_message(queuedRequest, host)
                 if reply == responsesFromServer[0].replace("game",queuedRequest):
                     set_bot_status(games[queuedRequest]["LongName"])
                 requestIsQueued = False
@@ -130,51 +169,13 @@ def wake_server():
             print("wake_server has run more than 20 times, stopping wake_server")
             break
 
-class Reply:
-    def __init__(self, rawReply):
-        self.text = rawReply[0]
-        try:
-            self.ip = rawReply[1]
-        except: 
-            self.ip = "0"
-        try: 
-            self.port = rawReply[2]
-        except: 
-            self.port = "0"
-
-### Builds salt string for messages between SummonerBot and Dedicated Server Controller
-def make_salt():
-        global salt
-        salt = ''
-        chars = string.ascii_letters + string.punctuation + string.digits
-        chars = chars.replace(':','')
-        salt = ''.join(random.choice(chars) for x in range(10))
-
-def encrypt_message(message):
-    make_salt()
-    message = salt + "::" + message
-    return fernet.encrypt(message.encode())
-
-def decrypt_message(message):
-    message = fernet.decrypt(message).decode()
-    message = message.split("::")
-    del message[0]
-    return message
-
 ### Sends messages to the Dedicated Server machine that is running DedicatedServerController.py and returns a string for the end user based on results
 async def ask_server(request: str):
     askFailure = False
     try: 
         host = socket.gethostbyname(DedicatedServerHostname)
         try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((host, port))
-            s.send(encrypt_message(request))
-            rawReply = s.recv(buffer)
-            s.close()
-            reply = decrypt_message(rawReply)
-            print(reply)
-            reply = Reply(''.join(reply).split("::"))
+            reply = send_message(request, host)
         except Exception as e: 
             print("Server has IP, but there was an error:")
             print(e)
