@@ -135,11 +135,11 @@ def reply(request):
 
 ### Builds salt string for messages between SummonerBot and Dedicated Server Controller
 def make_salt():
-        global salt
-        salt = ''
-        chars = string.ascii_letters + string.punctuation + string.digits
-        chars = chars.replace(':','')
-        salt = ''.join(random.choice(chars) for x in range(10))
+    global salt
+    salt = ''
+    chars = string.ascii_letters + string.punctuation + string.digits
+    chars = chars.replace(':','')
+    salt = ''.join(random.choice(chars) for x in range(10))
 
 def encrypt_message(message):
     make_salt()
