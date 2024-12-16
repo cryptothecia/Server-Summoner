@@ -138,7 +138,7 @@ def main():
     conn, addr = s.accept()
     while True:
         #request = conn.recv(buffer_size).decode()
-        request = conn.recv(buffer_size)
+        request = conn.recv(buffer_size).decode()
         if request: 
             try:
                 request = fernet.decrypt(request).decode()
