@@ -27,11 +27,11 @@ requestIsQueued = False
 queuedRequest = queuedRequestTime = requestTime = None
         
 games = {
-    "Palworld" : {"LongName" : "Palworld", "AppID" : 0, "Port" : 0},
-    "7D2D" : {"LongName" : "7 Days to Die", "AppID" : 0, "Port" : 0},
-    "Enshrouded" : {"LongName" : "Enshrouded", "AppID" : 0, "Port" : 0},
-    "ARKSE" : {"LongName" : r"ARK: Survival Evolved", "AppID" : 0, "Port" : 0},
-    "Satisfactory" : {"LongName" : "Satisfactory", "AppID" : 0, "Port" : 0}
+    "Palworld" : {"LongName" : "Palworld", "AppID" : 0},
+    "7D2D" : {"LongName" : "7 Days to Die", "AppID" : 0},
+    "Enshrouded" : {"LongName" : "Enshrouded", "AppID" : 0},
+    "ARKSE" : {"LongName" : r"ARK: Survival Evolved", "AppID" : 0},
+    "Satisfactory" : {"LongName" : "Satisfactory", "AppID" : 0}
 }
 
 #This section builds information for sending magic packets
