@@ -3,6 +3,7 @@ import subprocess
 import glob
 import os
 import urllib.request
+from cryptography.fernet import Fernet
 
 servicePath = '/etc/systemd/system/*Server.service'
 PATHSfile = os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),".PATHS")
@@ -130,11 +131,15 @@ def reply(request):
 def main():
     get_bot_host()
     get_games()
+    DedicatedServerToken = read_PATHS("DedicatedServerToken=")
+    fernet = Fernet(DedicatedServerToken)
     ### Loop for socket to listen for and send responses to requests from SummonerBot.py
     conn, addr = s.accept()
     while True:
-        request = conn.recv(buffer_size).decode()
+        #request = conn.recv(buffer_size).decode()
+        request = conn.recv(buffer_size)
         if request: 
+            request = fernet.decrypt(request).decode()
             print('received: ', request, 'from: ', addr[0])
             ### Checks addr IP against the IP of botHost, defined by get_bot_host(). If IP is not the same, no action should be taken and a reject message sent. This check doesn't happen if botHost ends up blank
             if botHost != '' and addr[0] == botHost:
@@ -142,7 +147,7 @@ def main():
             elif botHost != '' and addr[0] != botHost:
                 answer = "Rejected request."
             print('sent: ', answer)
-            conn.send(answer.encode())
+            conn.send(fernet.encrypt(answer.encode()))
         if not request: 
             conn, addr = s.accept()
 

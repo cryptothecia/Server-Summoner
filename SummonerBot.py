@@ -10,13 +10,16 @@ from discord import app_commands
 from discord.ext import tasks, commands
 from dotenv import load_dotenv
 from typing import Literal
+from cryptography.fernet import Fernet
 
 load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
+DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
+DedicatedServerToken = os.getenv('DedicatedServerToken')
+fernet = Fernet(DedicatedServerToken)
+DedicatedServerHostname = os.getenv('DedicatedServerHostname')
 logging = (os.getenv('logging')) == "True"
 logFile = os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),"summonerlog.txt")
 botOwner = os.getenv('BotOwnerID')
-DedicatedServerHostname = os.getenv('DedicatedServerHostname')
 intents = discord.Intents.default()
 intents.message_content = True
 bot = discord.Client(intents=intents)
@@ -145,9 +148,9 @@ async def ask_server(request: str):
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((host, port))
-            s.send(request.encode())
+            s.send(fernet.encrypt(request.encode()))
             rawReply = s.recv(buffer)
-            rawReply = rawReply.decode()
+            rawReply = fernet.decrypt(rawReply).decode()
             s.close()
             reply = Reply(rawReply.split("::"))
             print(reply.text)
@@ -249,4 +252,4 @@ async def on_error(interaction: discord.Interaction, error):
     log(f"{interaction.user.global_name} tried to use {interaction.command.name} in {interaction.channel} in {interaction.guild}, but the command was denied.")
     await interaction.followup.send("You do not have permissions for this command.",ephemeral=True)
 
-bot.run(TOKEN)
+bot.run(DISCORD_TOKEN)
