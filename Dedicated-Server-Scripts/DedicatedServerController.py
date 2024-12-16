@@ -3,6 +3,8 @@ import subprocess
 import glob
 import os
 import urllib.request
+import random
+import string
 from cryptography.fernet import Fernet
 
 servicePath = '/etc/systemd/system/*Server.service'
@@ -25,6 +27,9 @@ def read_PATHS(query):
                 result = line.replace(query,'')
                 result = result.strip()
                 return result
+            
+DedicatedServerToken = read_PATHS("DedicatedServerToken=")
+fernet = Fernet(DedicatedServerToken)
 
 ### Get hostname of machine hosting SummonerBot.py from .PATHS
 def get_bot_host():
@@ -128,17 +133,34 @@ def reply(request):
         case _:
             return "No request made"
 
+### Builds salt string for messages between SummonerBot and Dedicated Server Controller
+def make_salt():
+        global salt
+        salt = ''
+        chars = string.ascii_letters + string.punctuation + string.digits
+        chars = chars.replace(':','')
+        salt = ''.join(random.choice(chars) for x in range(10))
+
+def encrypt_message(message):
+    make_salt()
+    message = salt + "::" + message
+    return fernet.encrypt(message.encode())
+
+def decrypt_message(message):
+    message = fernet.decrypt(message).decode()
+    message = message.split("::")
+    del message[0]
+    return message
+
 def main():
     get_bot_host()
     get_games()
-    DedicatedServerToken = read_PATHS("DedicatedServerToken=")
-    fernet = Fernet(DedicatedServerToken)
     ### Loop for socket to listen for and send responses to requests from SummonerBot.py
     conn, addr = s.accept()
     while True:
         request = conn.recv(buffer_size)
         if request: 
-            request = fernet.decrypt(request).decode()
+            request = decrypt_message(request)
             print('received: ', request, 'from: ', addr[0])
             ### Checks addr IP against the IP of botHost, defined by get_bot_host(). If IP is not the same, no action should be taken and a reject message sent. This check doesn't happen if botHost ends up blank
             if botHost != '' and addr[0] == botHost:
@@ -146,7 +168,7 @@ def main():
             elif botHost != '' and addr[0] != botHost:
                 answer = "Rejected request."
             print('sent: ', answer)
-            conn.send(fernet.encrypt(answer.encode()))
+            conn.send(encrypt_message(answer))
         if not request: 
             conn, addr = s.accept()
 
