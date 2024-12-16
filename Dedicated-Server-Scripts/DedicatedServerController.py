@@ -12,7 +12,7 @@ games = []
 botHost = ''
 host = ''
 port = 62487
-buffer_size = 20
+buffer_size = 1024
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((host, port))
 s.listen(1)
