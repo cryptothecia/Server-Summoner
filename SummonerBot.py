@@ -1,4 +1,5 @@
-#Server Summoner Bot
+### Server Summoner Discord Bot, to be run on a machine with more uptime than Dedicated Server Controller, so that it can listen to and respond to Discord messages, 
+### and then wake the Dedicated Server machine as needed
 import os
 import discord
 import socket
@@ -39,7 +40,7 @@ games = {
     "Satisfactory" : {"LongName" : "Satisfactory", "AppID" : 0}
 }
 
-#This section builds information for sending magic packets
+### This section builds information for sending magic packets
 MAC = os.getenv('DedicatedServerMAC')
 MACSplit = MAC.replace(MAC[2], '')
 MACBytes = ''.join(['FFFFFFFFFFFF', MACSplit * 20])
@@ -56,7 +57,7 @@ def send_wol(iterations: int = 2):
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) as netConnect:
             netConnect.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
             netConnect.sendto(MagicPacket, ("255.255.255.255",7))
-#End magic packet build
+### End magic packet build
 
 ### Logs command usage
 def log(logMessage: str):

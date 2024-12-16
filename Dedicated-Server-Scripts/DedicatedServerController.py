@@ -1,3 +1,4 @@
+### Dedicated Server Controller, to be run on a Linux machine hosting the dedicated servers
 import socket
 import subprocess
 import glob
