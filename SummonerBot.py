@@ -5,6 +5,8 @@ import socket
 import struct
 import datetime
 import time
+import random
+import string
 from threading import *
 from discord import app_commands
 from discord.ext import tasks, commands
@@ -15,8 +17,8 @@ from cryptography.fernet import Fernet
 load_dotenv()
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 DedicatedServerToken = os.getenv('DedicatedServerToken')
-fernet = Fernet(DedicatedServerToken)
 DedicatedServerHostname = os.getenv('DedicatedServerHostname')
+fernet = Fernet(DedicatedServerToken)
 logging = (os.getenv('logging')) == "True"
 logFile = os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),"summonerlog.txt")
 botOwner = os.getenv('BotOwnerID')
@@ -140,6 +142,25 @@ class Reply:
         except: 
             self.port = "0"
 
+### Builds salt string for messages between SummonerBot and Dedicated Server Controller
+def make_salt():
+        global salt
+        salt = ''
+        chars = string.ascii_letters + string.punctuation + string.digits
+        chars = chars.replace(':','')
+        salt = ''.join(random.choice(chars) for x in range(10))
+
+def encrypt_message(message):
+    make_salt()
+    message = salt + "::" + message
+    return fernet.encrypt(message.encode())
+
+def decrypt_message(message):
+    message = fernet.decrypt(message).decode()
+    message = message.split("::")
+    del message[0]
+    return message
+
 ### Sends messages to the Dedicated Server machine that is running DedicatedServerController.py and returns a string for the end user based on results
 async def ask_server(request: str):
     askFailure = False
@@ -148,12 +169,12 @@ async def ask_server(request: str):
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((host, port))
-            s.send(fernet.encrypt(request.encode()))
+            s.send(encrypt_message(request))
             rawReply = s.recv(buffer)
-            rawReply = fernet.decrypt(rawReply).decode()
             s.close()
-            reply = Reply(rawReply.split("::"))
-            print(reply.text)
+            reply = decrypt_message(rawReply)
+            print(reply)
+            reply = Reply(reply.split("::"))
         except: 
             print("Server has IP but not answering.")
             askFailure = True
