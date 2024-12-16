@@ -174,12 +174,14 @@ async def ask_server(request: str):
             s.close()
             reply = decrypt_message(rawReply)
             print(reply)
-            reply = Reply(reply.split("::"))
-        except: 
-            print("Server has IP but not answering.")
+            reply = Reply(''.join(reply).split("::"))
+        except Exception as e: 
+            print("Server has IP, but there was an error:")
+            print(e)
             askFailure = True
-    except: 
-        print("Server does not have IP.")
+    except Exception as e:
+        print("Server IP was not found.")
+        print(e)
         askFailure = True      
     if request in games and askFailure is True:
         global queuedRequest
@@ -224,8 +226,8 @@ async def ask_server(request: str):
                     return askServerReturnMessages["Idle"]
             case _:
                 return askServerReturnMessages["Error"]
-    except:
-        pass
+    except Exception as e:
+        print(e)
 
 @bot.event
 async def on_ready():
