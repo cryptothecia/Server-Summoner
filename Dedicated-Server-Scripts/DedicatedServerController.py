@@ -131,7 +131,7 @@ def reply(request):
 def main():
     get_bot_host()
     get_games()
-    DedicatedServerToken = read_PATHS("DedicatedServerToken=").encode()
+    DedicatedServerToken = read_PATHS("DedicatedServerToken=")
     print(DedicatedServerToken)
     fernet = Fernet(DedicatedServerToken)
     ### Loop for socket to listen for and send responses to requests from SummonerBot.py
