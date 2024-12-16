@@ -107,6 +107,7 @@ def make_salt():
     chars = chars.replace(':','')
     salt = ''.join(random.choice(chars) for x in range(10))
 
+### Functions for encrypting & encoding and decrypting & decoding strings
 def encrypt_message(message):
     make_salt()
     message = salt + "::" + message
@@ -135,11 +136,12 @@ def send_message(message, host):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
     s.send(encrypt_message(message))
+    print('sent:     ', message)
     rawReply = s.recv(buffer)
     s.close()
     reply = decrypt_message(rawReply)
-    print(reply)
     reply = Reply(''.join(reply).split("::"))
+    print('received: ', reply)
     return reply
 
 ### This is only used in a seperate thread to wake up the Dedicated Server machine

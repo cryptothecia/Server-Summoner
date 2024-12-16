@@ -168,7 +168,7 @@ def main():
                 answer = reply(request)
             elif botHost != '' and addr[0] != botHost:
                 answer = "Rejected request."
-            print('sent: ', answer)
+            print('sent:     ', answer)
             conn.send(encrypt_message(answer))
         if not request: 
             conn, addr = s.accept()
