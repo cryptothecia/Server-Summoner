@@ -1,4 +1,4 @@
-### The scripts for running the server pull the locations of certain files or port numbers from this file. Replace these values with the paths to each of these locations and then rename this file to just .PATHS
+### The scripts for running the server pull the locations of certain files, port numbers, or other information from this file. Replace these values with the paths to each of these locations or other information and then rename this file to just .PATHS
 
 _7D2D_SaveLocation=
 _7D2D_BackupLocation=
