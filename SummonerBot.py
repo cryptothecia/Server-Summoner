@@ -152,6 +152,7 @@ async def ask_server(request: str):
             s.send(fernet.encrypt(request.encode()))
             print(DedicatedServerToken)
             print(fernet.decrypt(encoded_message).decode())
+            print(encoded_message)
             rawReply = s.recv(buffer)
             rawReply = fernet.decrypt(rawReply).decode()
             s.close()

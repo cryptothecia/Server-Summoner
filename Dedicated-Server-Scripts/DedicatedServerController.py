@@ -138,13 +138,10 @@ def main():
     conn, addr = s.accept()
     while True:
         #request = conn.recv(buffer_size).decode()
-        request = conn.recv(buffer_size).decode()
+        request = conn.recv(buffer_size)
         if request: 
-            try:
-                request = fernet.decrypt(request).decode()
-            except:
-                pass
             print('received: ', request, 'from: ', addr[0])
+            request = fernet.decrypt(request).decode()
             ### Checks addr IP against the IP of botHost, defined by get_bot_host(). If IP is not the same, no action should be taken and a reject message sent. This check doesn't happen if botHost ends up blank
             if botHost != '' and addr[0] == botHost:
                 answer = reply(request)
