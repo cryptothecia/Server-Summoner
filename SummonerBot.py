@@ -140,8 +140,8 @@ def send_message(message, host):
     rawReply = s.recv(buffer)
     s.close()
     reply = decrypt_message(rawReply)
-    reply = Reply(''.join(reply).split("::"))
     print('received: ', reply)
+    reply = Reply(''.join(reply).split("::"))
     return reply
 
 ### This is only used in a seperate thread to wake up the Dedicated Server machine
@@ -240,7 +240,7 @@ async def on_ready():
     auto_status_update.start()
     await tree.sync() 
 
-@tasks.loop(seconds=600.0)
+@tasks.loop(seconds=1200.0)
 async def auto_status_update():
     await ask_server("status")
 
@@ -259,7 +259,7 @@ async def summonstatus(interaction: discord.Interaction):
     
 @tree.command(name="summongame",description=f"Send a request to bring a game server online.")
 async def summongame(interaction: discord.Interaction, 
-                     game: Literal[tuple(games.keys())]):
+                     game: Literal[tuple(games.keys())]): # type: ignore
     await summon(game,interaction=interaction)
 
 ### ADMIN ONLY COMMANDS
