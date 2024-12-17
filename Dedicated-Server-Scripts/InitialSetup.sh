@@ -6,14 +6,19 @@ useradd server -m -g steam-group
 echo "server:$password" | chpasswd
 unset password
 
-## Set up directory for Steam files
+### Set up directory for Steam files
 mkdir /srv/shared-steam-library
 chown server:steam-group /srv/shared-steam-library 
 
 ### Install pre-requisites for SteamCMD and install SteamCMD
-sudo add-apt-repository multiverse
-sudo dpkg --add-architecture i386
-sudo apt install steamcmd
+add-apt-repository multiverse
+dpkg --add-architecture i386
+apt install steamcmd
+echo steam steam/question select "I AGREE" | debconf-set-selections
+echo steam steam/license note '' | debconf-set-selections
+
+### Clones git repository
+git clone https://github.com/cryptothecia/Server-Summoner /srv/Server-Summoner
 
 ### Permanently maps network drive
 echo "Enter network address of machine hosting network location (machine name can be used on local network)."
@@ -27,4 +32,4 @@ mkdir /mnt/Folder
 echo "//$networkDriveHost/Folder /mnt/Folder cifs uid=server,credentials=/srv/shared-steam-library/.smbcredentials,noperm 0 0" | sudo tee -a /etc/fstab
 
 ### Installs ncat for talking to 7d2d server
-sudo apt install ncat -y
+apt install ncat -y
