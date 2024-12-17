@@ -7,8 +7,8 @@ echo "server:$password" | chpasswd
 unset password
 
 ## Set up directory for Steam files
-mkdir /shared-steam-library
-chown server:steam-group /shared-steam-library 
+mkdir /srv/shared-steam-library
+chown server:steam-group /srv/shared-steam-library 
 
 ### Install pre-requisites for SteamCMD and install SteamCMD
 sudo add-apt-repository multiverse
@@ -22,9 +22,9 @@ echo "Enter username, password, and domain for network location."
 read -pr "Username: " username
 read -spr "Password: " password; echo
 read -pr "Domain: " domain
-echo -e "username=$username\npassword=$password\ndomain=$domain" > /shared-steam-library/.smbcredentials
-mkdir /media/Folder
-echo "//$networkDriveHost/Folder /media/Folder cifs uid=server,credentials=/shared-steam-library/.smbcredentials,noperm 0 0" | sudo tee -a /etc/fstab
+echo -e "username=$username\npassword=$password\ndomain=$domain" > /srv/shared-steam-library/.smbcredentials
+mkdir /mnt/Folder
+echo "//$networkDriveHost/Folder /mnt/Folder cifs uid=server,credentials=/srv/shared-steam-library/.smbcredentials,noperm 0 0" | sudo tee -a /etc/fstab
 
 ### Installs ncat for talking to 7d2d server
 sudo apt install ncat -y
