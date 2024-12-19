@@ -141,7 +141,7 @@ def send_message(message, host):
     s.close()
     reply = decrypt_message(rawReply)
     print('received: ', reply)
-    reply = Reply(''.join(reply).split("::"))
+    reply = Reply(reply)
     return reply
 
 ### This is only used in a seperate thread to wake up the Dedicated Server machine
