@@ -9,6 +9,7 @@ unset password
 ### Set up directory for Steam files
 mkdir /srv/shared-steam-library
 chown server:steam-group /srv/shared-steam-library 
+chown g+s /srv/shared-steam-library
 
 ### Install pre-requisites for SteamCMD and install SteamCMD
 add-apt-repository multiverse
