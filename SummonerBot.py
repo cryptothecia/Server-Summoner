@@ -17,11 +17,11 @@ from cryptography.fernet import Fernet
 
 load_dotenv()
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
-DedicatedServerToken = os.getenv('DedicatedServerToken')
-DedicatedServerHostname = os.getenv('DedicatedServerHostname')
-fernet = Fernet(DedicatedServerToken)
-logging = (os.getenv('logging')) == "True"
-logFile = os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),"summonerlog.txt")
+DEDICATED_SERVER_TOKEN = os.getenv('DEDICATED_SERVER_TOKEN')
+DEDICATED_SERVER_HOSTNAME = os.getenv('DEDICATED_SERVER_HOSTNAME')
+fernet = Fernet(DEDICATED_SERVER_TOKEN)
+LOGGING = (os.getenv('LOGGING')) == "True"
+LOGFILE = os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),"summonerlog.txt")
 botOwner = os.getenv('BotOwnerID')
 intents = discord.Intents.default()
 intents.message_content = True
@@ -61,11 +61,11 @@ def send_wol(iterations: int = 2):
 
 ### Logs command usage
 def log(logMessage: str):
-    if logging is True:
-        if (os.path.isfile(logFile)) is False:
-            with open(logFile, "w") as f:
+    if LOGGING is True:
+        if (os.path.isfile(LOGFILE)) is False:
+            with open(LOGFILE, "w") as f:
                 f.write("")
-        with open(logFile, "a", encoding="utf-8") as f:
+        with open(LOGFILE, "a", encoding="utf-8") as f:
             time = datetime.datetime.now()
             try: 
                 f.write(time.strftime("%Y/%m/%d_%H:%M:%S") + ":: " + logMessage + "\n")
@@ -151,7 +151,7 @@ def wake_server():
     while serverOnline is not True:
         send_wol()
         try: 
-            host = socket.gethostbyname(DedicatedServerHostname)
+            host = socket.gethostbyname(DEDICATED_SERVER_HOSTNAME)
             try:
                 global requestIsQueued
                 global queuedRequest
@@ -176,7 +176,7 @@ def wake_server():
 async def ask_server(request: str):
     askFailure = False
     try: 
-        host = socket.gethostbyname(DedicatedServerHostname)
+        host = socket.gethostbyname(DEDICATED_SERVER_HOSTNAME)
         try:
             reply = send_message(request, host)
         except Exception as e: 
@@ -268,7 +268,7 @@ async def summongame(interaction: discord.Interaction,
 async def summonlogs(interaction: discord.Interaction,number_of_lines: int = 20):
     await interaction.response.defer(ephemeral=True,thinking=True)
     message = []
-    with open(logFile, "r", encoding="utf-8") as f:
+    with open(LOGFILE, "r", encoding="utf-8") as f:
         for line in (f.readlines() [-number_of_lines:]):
             message.append(line)
     log(f"{interaction.user.global_name} used {interaction.command.name} in {interaction.channel} in {interaction.guild}")
