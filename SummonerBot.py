@@ -210,7 +210,7 @@ async def ask_server(request: str):
         match reply.text: 
             case reply.text if reply.text == responsesFromServer[0].format(game = request):
                 await set_bot_status(games[request]["LongName"])
-                return askServerReturnMessages["Starting"].format(game = games[request]["LongName"].replace(".","") + f" at {reply.ip}:{reply.port}.")
+                return askServerReturnMessages["Starting"].format(game = games[request]["LongName"]).replace(".","") + f" at {reply.ip}:{reply.port}."
             case reply.text if responsesFromServer[1] in reply.text:
                 activeGames = reply.text.replace(responsesFromServer[1],"")
                 if activeGames != "":
