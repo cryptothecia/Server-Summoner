@@ -124,7 +124,7 @@ def reply(request):
                     if backupStatus == "inactive":
                         backupRequest = True
                     start_game_services(request,backupRequest)
-                    return f"Bringing {request} server online."
+                    return f"Bringing {request} server online.::{external_ip}::{read_PATHS(f"_{request}_Port=")}"
                 else:
                     return ''.join(activeGames) + f" running::{external_ip}"
             elif serverStatus == "active":
