@@ -17,3 +17,11 @@ _Enshrouded_Port=
 ### ShutdownComputer.sh will ping all IPs or DNS names listed here and shutdown the server computer only when all machines fail to ping. Separate each machine listed by comma (Desktop1,Desktop2)
 
 pingTargets=
+
+### botHost should be the machine name of the machine running SummonerBot.py
+
+botHost=
+
+### This token should be the same as in the .env used by the machine running SummonerBot.py
+
+DedicatedServerToken=
