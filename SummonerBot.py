@@ -245,17 +245,24 @@ async def auto_status_update():
     await ask_server("status")
 
 ### Mostly just a wrapper for ask_server
-async def summon(summonedGame,interaction):
-    await interaction.response.defer(ephemeral=True,thinking=True)
+async def summon(summonedGame,interaction,ephemeral_choice = True):
+    await interaction.response.defer(ephemeral=ephemeral_choice,thinking=True)
     log(f"{interaction.user.global_name} used {interaction.command.name} in {interaction.channel} in {interaction.guild}")
     message = await ask_server(summonedGame)
-    await interaction.followup.send(message,ephemeral=True)
-    log(f"Sent to {interaction.user.global_name}: \"" + message + "\"")
+    await interaction.followup.send(message,ephemeral=ephemeral_choice)
+    if ephemeral_choice is True:
+        log(f"Sent to {interaction.user.global_name}: \"" + message + "\"")
+    else: 
+        log(f"Sent to {interaction.channel}: \"" + message + "\"")
     
 ### LIST OF COMMANDS STARTS HERE
 @tree.command(name="summonstatus",description=f"Get server status.")
-async def summonstatus(interaction: discord.Interaction):
-    await summon("status",interaction=interaction)
+async def summonstatus(interaction: discord.Interaction,public_answer: Literal[("No","Yes")]): # type: ignore
+    if public_answer == "No":
+        ephemeral_choice = True
+    else:
+        ephemeral_choice = False
+    await summon("status",interaction=interaction,ephemeral_choice=ephemeral_choice)
     
 @tree.command(name="summongame",description=f"Send a request to bring a game server online.")
 async def summongame(interaction: discord.Interaction, 
