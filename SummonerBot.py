@@ -180,12 +180,10 @@ async def ask_server(request: str):
         try:
             reply = send_message(request, host)
         except Exception as e: 
-            print("Server has IP, but there was an error:")
-            print(e)
+            print("Server has IP, but there was an error:\n" + e)
             askFailure = True
     except Exception as e:
-        print("Server IP was not found.")
-        print(e)
+        print("Server IP was not found.\n" + e)
         askFailure = True      
     if request in games and askFailure is True:
         global queuedRequest
