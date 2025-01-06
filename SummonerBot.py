@@ -160,7 +160,7 @@ def wake_server():
                 global requestIsQueued
                 global queuedRequest
                 reply = send_message(queuedRequest, host)
-                if reply == responsesFromServer[0].replace("game",queuedRequest):
+                if reply == responsesFromServer[0].format(game = queuedRequest):
                     set_bot_status(games[queuedRequest]["LongName"])
                 requestIsQueued = False
                 queuedRequest = None
