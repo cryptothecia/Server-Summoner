@@ -136,14 +136,12 @@ def reply(request):
 
 ### Builds salt string for messages between SummonerBot and Dedicated Server Controller
 def make_salt():
-    global salt
-    salt = ''
     chars = string.ascii_letters + string.punctuation + string.digits
     chars = chars.replace(':','')
-    salt = ''.join(random.choice(chars) for x in range(10))
+    return ''.join(random.choice(chars) for x in range(20))
 
 def encrypt_message(message):
-    make_salt()
+    salt = make_salt()
     message = salt + "::" + message
     return fernet.encrypt(message.encode())
 

@@ -101,15 +101,13 @@ askServerReturnMessages = {
 
 ### Builds salt string for messages between SummonerBot and Dedicated Server Controller
 def make_salt():
-    global salt
-    salt = ''
     chars = string.ascii_letters + string.punctuation + string.digits
     chars = chars.replace(':','')
-    salt = ''.join(random.choice(chars) for x in range(10))
+    return ''.join(random.choice(chars) for x in range(20))
 
 ### Functions for encrypting & encoding and decrypting & decoding strings
 def encrypt_message(message):
-    make_salt()
+    salt = make_salt()
     message = salt + "::" + message
     return fernet.encrypt(message.encode())
 
@@ -119,6 +117,7 @@ def decrypt_message(message):
     del message[0]
     return message
 
+### decrypt_message() takes reply from the server and split it into a list, this turns that list into a Reply object
 class Reply:
     def __init__(self, rawReply):
         if not isinstance(rawReply, list):
