@@ -121,7 +121,12 @@ def decrypt_message(message):
 
 class Reply:
     def __init__(self, rawReply):
-        self.text = rawReply[0]
+        if not isinstance(rawReply, list):
+            rawReply = [rawReply]
+        if isinstance(rawReply[0], str):
+            self.text = rawReply[0]
+        else: 
+            self.text = ""
         try:
             self.ip = rawReply[1]
         except: 
