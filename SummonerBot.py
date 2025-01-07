@@ -250,12 +250,12 @@ async def auto_status_update():
 async def summon(summonedGame,interaction,ephemeral_choice = True):
     await interaction.response.defer(ephemeral=ephemeral_choice,thinking=True)
     log(f"{interaction.user.global_name} used {interaction.command.name} in {interaction.channel} in {interaction.guild}")
-    message = await ask_server(summonedGame)
-    await interaction.followup.send(message,ephemeral=ephemeral_choice)
+    messageToUser = await ask_server(summonedGame)
+    await interaction.followup.send(messageToUser,ephemeral=ephemeral_choice)
     if ephemeral_choice is True:
-        log(f"Sent to {interaction.user.global_name}: \"" + message + "\"")
+        log(f"Sent to {interaction.user.global_name}: \"" + messageToUser + "\"")
     else: 
-        log(f"Sent to {interaction.channel}: \"" + message + "\"")
+        log(f"Sent to {interaction.channel}: \"" + messageToUser + "\"")
     
 ### LIST OF COMMANDS STARTS HERE
 @tree.command(name="summonstatus",description=f"Get server status.")
@@ -276,12 +276,12 @@ async def summongame(interaction: discord.Interaction,
 @app_commands.check(is_owner)
 async def summonlogs(interaction: discord.Interaction,number_of_lines: int = 20):
     await interaction.response.defer(ephemeral=True,thinking=True)
-    message = []
+    messageToUser = []
     with open(LOGFILE, "r", encoding="utf-8") as f:
         for line in (f.readlines() [-number_of_lines:]):
-            message.append(line)
+            messageToUser.append(line)
     log(f"{interaction.user.global_name} used {interaction.command.name} in {interaction.channel} in {interaction.guild}")
-    await interaction.followup.send(''.join(message),ephemeral=True)
+    await interaction.followup.send(''.join(messageToUser),ephemeral=True)
 @summonlogs.error
 async def on_error(interaction: discord.Interaction, error):
     await interaction.response.defer(ephemeral=True,thinking=True)
