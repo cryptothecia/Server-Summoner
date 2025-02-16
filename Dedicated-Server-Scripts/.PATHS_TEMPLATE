@@ -25,3 +25,7 @@ botHost=
 ### This token should be the same as in the .env used by the machine running SummonerBot.py
 
 DedicatedServerToken=
+
+### Directory to hold backups of the dedicated server's files
+
+systemBackupLocation=

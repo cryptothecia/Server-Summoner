@@ -31,5 +31,36 @@ while [[ $DesktopShutdown != "true" ]]; do
 		sleep $((5*60))
 	fi
 done
+
+while [[ $systemBackedUp != "true" ]]; do
+	if [[ ! -z $(find "$systemBackupLocation" -name "*.tar.xz") ]]; then
+		existingBackups=$(find "$systemBackupLocation" -name "*.tar.xz")
+		newestBackup=${existingBackups[0]}
+		for backup in "${existingBackups[@]}"; do
+			if [[ $backup -nt $newestBackup ]]; then
+				newestBackup=$backup
+			fi
+		done
+		if [[ $(($(date +%s) - $(date -r "$newestBackup" +%s))) -gt $((60 * 60 * 24 * 7)) ]]; then
+			doBackup="true"
+		fi
+	else
+		doBackup="true"
+	fi
+	if [[ $doBackup == "true" ]]; then
+		tar -cvJf "$systemBackupLocation/DedicatedServerBackup$(date +%F).tar.xz" /etc /home /var /opt
+		existingBackups=$(find "$systemBackupLocation" -name "*.tar.xz")
+		while [[ ${#existingBackups[@]} -gt 4 ]]; do
+			for backup in "${existingBackups[@]}"; do
+				if [[ $backup -ot $oldestBackup ]]; then
+					oldestBackup=$backup
+				fi
+			done
+			rm -f "$oldestBackup"
+		done
+	fi
+	systemBackedUp="true"
+done
+
 sudo systemctl stop DedicatedServerController.service
 sudo systemctl start ShutdownComputer.service
