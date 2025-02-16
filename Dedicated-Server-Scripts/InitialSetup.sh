@@ -19,7 +19,7 @@ echo steam steam/question select "I AGREE" | debconf-set-selections
 echo steam steam/license note '' | debconf-set-selections
 
 ### Clones git repository
-git clone https://github.com/cryptothecia/Server-Summoner /srv/Server-Summoner
+git clone https://github.com/cryptothecia/Server-Summoner /opt/Server-Summoner
 
 ### Permanently maps network drive
 echo "Enter network address of machine hosting network location (machine name can be used on local network)."
