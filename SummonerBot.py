@@ -72,6 +72,9 @@ def log(logMessage: str):
             except: 
                 f.write(time.strftime("%Y/%m/%d_%H:%M:%S") + ":: " + "A log entry was attempted, but an error occurred." + "\n")
 
+def log_interaction(interaction: discord.Interaction):
+    log_interaction(interaction)
+
 ### Used as a permission check for commands, checks if user is botOwner defined in the .env
 def is_owner(interaction: discord.Interaction):
     if str(interaction.user.id) == botOwner:
@@ -249,7 +252,7 @@ async def auto_status_update():
 ### Mostly just a wrapper for ask_server
 async def summon(summonedGame,interaction,ephemeral_choice = True):
     await interaction.response.defer(ephemeral=ephemeral_choice,thinking=True)
-    log(f"{interaction.user.global_name} used {interaction.command.name} in {interaction.channel} in {interaction.guild}")
+    log_interaction(interaction)
     messageToUser = await ask_server(summonedGame)
     await interaction.followup.send(messageToUser,ephemeral=ephemeral_choice)
     if ephemeral_choice is True:
@@ -280,7 +283,7 @@ async def summonlogs(interaction: discord.Interaction,number_of_lines: int = 20)
     with open(LOGFILE, "r", encoding="utf-8") as f:
         for line in (f.readlines() [-number_of_lines:]):
             messageToUser.append(line)
-    log(f"{interaction.user.global_name} used {interaction.command.name} in {interaction.channel} in {interaction.guild}")
+    log_interaction(interaction)
     await interaction.followup.send(''.join(messageToUser),ephemeral=True)
 @summonlogs.error
 async def on_error(interaction: discord.Interaction, error):
