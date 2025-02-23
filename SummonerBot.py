@@ -73,7 +73,7 @@ def log(logMessage: str):
                 f.write(time.strftime("%Y/%m/%d_%H:%M:%S") + ":: " + "A log entry was attempted, but an error occurred." + "\n")
 
 def log_interaction(interaction: discord.Interaction):
-    log_interaction(interaction)
+    log(f"{interaction.user.global_name} used {interaction.command.name} in {interaction.channel} in {interaction.guild}")
 
 ### Used as a permission check for commands, checks if user is botOwner defined in the .env
 def is_owner(interaction: discord.Interaction):
