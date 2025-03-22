@@ -34,10 +34,12 @@ done
 
 while [[ $systemBackedUp != "true" ]]; do
 	if [[ ! -z $(find "$systemBackupLocation" -name "*.tar.xz") ]]; then
-		existingBackups=$(find "$systemBackupLocation" -name "*.tar.xz")
-		newestBackup=${existingBackups[0]}
-		for backup in "${existingBackups[@]}"; do
-			if [[ $backup -nt $newestBackup ]]; then
+		i=0
+		for backup in "$systemBackupLocation"/*.tar.xz; do
+			if [ $i == 0 ]; then
+				newestBackup=$backup
+				i=$((i + 1))
+			elif [[ $backup -nt $newestBackup ]]; then
 				newestBackup=$backup
 			fi
 		done
@@ -49,14 +51,21 @@ while [[ $systemBackedUp != "true" ]]; do
 	fi
 	if [[ $doBackup == "true" ]]; then
 		tar -cvJf "$systemBackupLocation/DedicatedServerBackup$(date +%F).tar.xz" /etc /home /var /opt
-		existingBackups=$(find "$systemBackupLocation" -name "*.tar.xz")
-		while [[ ${#existingBackups[@]} -gt 4 ]]; do
-			for backup in "${existingBackups[@]}"; do
-				if [[ $backup -ot $oldestBackup ]]; then
+		while [[ $deleted != "true" ]]; do
+			i=0
+			for backup in "$systemBackupLocation"/*.tar.xz; do
+				if [ $i == 0 ]; then
+					oldestBackup=$backup
+					i=$((i + 1))
+				elif [[ $backup -ot $oldestBackup ]]; then
 					oldestBackup=$backup
 				fi
 			done
-			rm -f "$oldestBackup"
+			if [[ $i -gt 4 ]]; then
+				rm -f "$oldestBackup"
+			else
+				deleted="true"
+			fi
 		done
 	fi
 	systemBackedUp="true"
