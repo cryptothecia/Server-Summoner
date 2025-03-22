@@ -35,7 +35,7 @@ done
 while [[ $systemBackedUp != "true" ]]; do
 	if [[ ! -z $(find "$systemBackupLocation" -name "*.tar.xz") ]]; then
 		i=0
-		for backup in "$systemBackupLocation"/*.tar.xz; do
+		for backup in "$systemBackupLocation"/DedicatedServerBackup*.tar.xz; do
 			if [ $i == 0 ]; then
 				newestBackup=$backup
 				i=$((i + 1))
@@ -53,7 +53,7 @@ while [[ $systemBackedUp != "true" ]]; do
 		tar -cvJf "$systemBackupLocation/DedicatedServerBackup$(date +%F).tar.xz" /etc /home /var /opt
 		while [[ $deleted != "true" ]]; do
 			i=0
-			for backup in "$systemBackupLocation"/*.tar.xz; do
+			for backup in "$systemBackupLocation"/DedicatedServerBackup*.tar.xz; do
 				if [ $i == 0 ]; then
 					oldestBackup=$backup
 					i=$((i + 1))
