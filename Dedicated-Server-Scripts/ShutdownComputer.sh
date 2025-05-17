@@ -38,10 +38,10 @@ while [[ $systemBackedUp != "true" ]]; do
 		for backup in "$systemBackupLocation"/DedicatedServerBackup*.tar.xz; do
 			if [ $i == 0 ]; then
 				newestBackup=$backup
-				i=$((i + 1))
 			elif [[ $backup -nt $newestBackup ]]; then
 				newestBackup=$backup
 			fi
+			i=$((i + 1))
 		done
 		if [[ $(($(date +%s) - $(date -r "$newestBackup" +%s))) -gt $((60 * 60 * 24 * 7)) ]]; then
 			doBackup="true"
@@ -56,10 +56,10 @@ while [[ $systemBackedUp != "true" ]]; do
 			for backup in "$systemBackupLocation"/DedicatedServerBackup*.tar.xz; do
 				if [ $i == 0 ]; then
 					oldestBackup=$backup
-					i=$((i + 1))
 				elif [[ $backup -ot $oldestBackup ]]; then
 					oldestBackup=$backup
 				fi
+				i=$((i + 1))
 			done
 			if [[ $i -gt 4 ]]; then
 				rm -f "$oldestBackup"
