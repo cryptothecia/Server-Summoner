@@ -14,22 +14,25 @@ fi
 
 serverStatus=$(systemctl is-active "${game}Server.service")
 if [[ $serverStatus == "active" ]]; then
-	if [[ $game == "7D2D" ]]; then
-		echo say \"IT IS TIME TO STOP.\" | ncat localhost 8081 &
-		sleep 2
-		echo say \"The server will be shutting down in ten minutes.\" | telnet localhost 8081 &
-		sleep 300
-		echo say \"The server will be shutting down in five minutes.\" | telnet localhost 8081 &
-		sleep 60
-		echo say \"The server will be shutting down in four minutes.\" | telnet localhost 8081 &
-		sleep 60
-		echo say \"The server will be shutting down in three minutes.\" | telnet localhost 8081 &
-		sleep 60
-		echo say \"The server will be shutting down in two minutes.\" | telnet localhost 8081 &
-		sleep 60
-		echo say \"The server will be shutting down in one minute.\" | telnet localhost 8081 &
-		sleep 60
-		echo shutdown | telnet localhost 8081
-	fi
+	case "${game}" in
+		"7D2D")
+			echo say \"IT IS TIME TO STOP.\" | ncat localhost 8081 &
+			sleep 2
+			echo say \"The server will be shutting down in ten minutes.\" | telnet localhost 8081 &
+			sleep 300
+			echo say \"The server will be shutting down in five minutes.\" | telnet localhost 8081 &
+			sleep 60
+			echo say \"The server will be shutting down in four minutes.\" | telnet localhost 8081 &
+			sleep 60
+			echo say \"The server will be shutting down in three minutes.\" | telnet localhost 8081 &
+			sleep 60
+			echo say \"The server will be shutting down in two minutes.\" | telnet localhost 8081 &
+			sleep 60
+			echo say \"The server will be shutting down in one minute.\" | telnet localhost 8081 &
+			sleep 60
+			echo shutdown | telnet localhost 8081
+		;;
+		*);;
+	esac
 	sudo systemctl stop "${game}"Server.service
 fi
