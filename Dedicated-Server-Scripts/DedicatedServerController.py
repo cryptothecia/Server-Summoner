@@ -10,7 +10,7 @@ from cryptography.fernet import Fernet
 
 servicePath = '/etc/systemd/system/*Server.service'
 PATHSfile = os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),".PATHS")
-external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
+external_ip = None
 games = []
 botHost = ''
 host = ''
@@ -19,6 +19,12 @@ buffer_size = 1024
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((host, port))
 s.listen(1)
+
+while external_ip is None:
+    try: 
+        external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
+    except:
+        print("external_ip retrieval failed")
 
 ### Function for searching .PATHS for different variables
 def read_PATHS(query):
