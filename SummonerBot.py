@@ -37,7 +37,8 @@ games = {
     "7D2D" : {"LongName" : "7 Days to Die", "AppID" : 0},
     "Enshrouded" : {"LongName" : "Enshrouded", "AppID" : 0},
     "ARKSE" : {"LongName" : r"ARK: Survival Evolved", "AppID" : 0},
-    "Satisfactory" : {"LongName" : "Satisfactory", "AppID" : 0}
+    "Satisfactory" : {"LongName" : "Satisfactory", "AppID" : 0},
+    "SpaceEngineers" : {"LongName" : "Space Engineers", "AppID" : 0}
 }
 
 ### This section builds information for sending magic packets

@@ -1,4 +1,6 @@
 #!/bin/bash
+cd "$(dirname "$0")" || exit
+source ./.PATHS
 while getopts g: l
 do
 	case "${l}" in
@@ -6,6 +8,9 @@ do
 		*) game=null;;
 	esac
 done
+
+serverLocation=_${game}_ServerLocation
+serverLocation="${!serverLocation}"
 
 backupStatus=$(systemctl status "${game}Backup.service" | grep -w -A 1 "Backup.sh -g ${game}" | grep -v 'Backup.sh')
 if [[ $backupStatus == *"sleep"* || -z "$backupStatus" ]]; then
@@ -31,6 +36,9 @@ if [[ $serverStatus == "active" ]]; then
 			echo say \"The server will be shutting down in one minute.\" | telnet localhost 8081 &
 			sleep 60
 			echo shutdown | telnet localhost 8081
+		;;
+		"SpaceEngineers")
+			"$serverLocation" -g "SpaceEngineers" -h
 		;;
 		*);;
 	esac

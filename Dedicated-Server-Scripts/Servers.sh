@@ -66,6 +66,9 @@ if [[ -f $serverLocation ]]; then
         "Enshrouded")
             wine64 "$serverLocation"
         ;;
+        "SpaceEngineers")
+            "$serverLocation" -g "SpaceEngineers"
+        ;;
         *)
             "$serverLocation"
     esac
