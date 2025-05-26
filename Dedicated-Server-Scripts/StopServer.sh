@@ -39,6 +39,7 @@ if [[ $serverStatus == "active" ]]; then
 		;;
 		"SpaceEngineers")
 			"$serverLocation" -g "SpaceEngineers" -h
+			wait
 		;;
 		*);;
 	esac
