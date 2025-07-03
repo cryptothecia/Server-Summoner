@@ -56,22 +56,11 @@ if [[ -f $serverLocation ]]; then
             fi
         fi
     fi
-    case "${game}" in
-        "Palworld") 
-            "$serverLocation" -useperfthreads -NoAsyncLoadingThread -UseMultithreadForDS -NoSteam      echo "ran"
-        ;;
-        "7D2D")
-            "$serverLocation" -configfile="${_7D2D_ServerConfig}"
-        ;;
-        "Enshrouded")
-            wine64 "$serverLocation"
-        ;;
-        "SpaceEngineers")
-            "$serverLocation" -g "SpaceEngineers"
-        ;;
-        *)
-            "$serverLocation"
-    esac
+    if [[ -f "./StartScripts/$game" ]]; then
+        "./StartScripts/$game"
+    else
+        "$serverLocation"
+    fi
 else
     echo "Server location isn't valid."
 fi

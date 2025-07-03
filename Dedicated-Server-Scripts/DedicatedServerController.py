@@ -55,7 +55,7 @@ def get_games():
         i+=1
 
 ### Assuming any Server.service exists, creates new Server, ServerStop and Backup .services for the requested game  
-def create_game_services(game: str):
+def create_game_services(game:str):
     path = servicePath.replace('*',games[0])
     with open(path,"r") as f:
         serverService=(f.read()).replace(games[0],game).replace("Description=*\n",f"Description={game} server.\n")
@@ -76,7 +76,7 @@ def create_game_services(game: str):
     subprocess.run(['sudo','systemctl','daemon-reload'], text=True)
 
 ### Invokes create_game_services if there are no services for the requested game, then checks the status of the services    
-def check_game_services(game: str,backupRequested: bool):
+def check_game_services(game:str,backupRequested:bool):
     path = servicePath.replace('*',game)
     if (os.path.isfile(path)) is False:
         create_game_services(game)
@@ -88,7 +88,7 @@ def check_game_services(game: str,backupRequested: bool):
         return serverStatus.stdout.strip()
  
 ### Starts the services for the requested game 
-def start_game_services(game: str,backupRequested: bool):
+def start_game_services(game:str,backupRequested:bool):
     subprocess.run(['sudo', 'systemctl', 'start', f'{game}Server.service'], text=True)
     if backupRequested == True:
         subprocess.run(['sudo', 'systemctl', 'start', f'{game}Backup.service'], text=True)

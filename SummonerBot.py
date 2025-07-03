@@ -14,6 +14,7 @@ from discord.ext import tasks, commands
 from dotenv import load_dotenv
 from typing import Literal
 from cryptography.fernet import Fernet
+from json import load as load_json
 
 load_dotenv()
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
@@ -31,15 +32,9 @@ port = 62487
 buffer = 1024
 requestIsQueued = False
 queuedRequest = queuedRequestTime = requestTime = None
-        
-games = {
-    "Palworld" : {"LongName" : "Palworld", "AppID" : 0},
-    "7D2D" : {"LongName" : "7 Days to Die", "AppID" : 0},
-    "Enshrouded" : {"LongName" : "Enshrouded", "AppID" : 0},
-    "ARKSE" : {"LongName" : r"ARK: Survival Evolved", "AppID" : 0},
-    "Satisfactory" : {"LongName" : "Satisfactory", "AppID" : 0},
-    "SpaceEngineers" : {"LongName" : "Space Engineers", "AppID" : 0}
-}
+
+with open('GameList.json', 'r') as file:
+    games = load_json(file)
 
 ### This section builds information for sending magic packets
 MAC = os.getenv('DedicatedServerMAC')
@@ -53,7 +48,7 @@ for i in range(0, len(MACBytes), 2):
         struct.pack('B', int(MACBytes[i: i + 2], 16))
     ])
 
-def send_wol(iterations: int = 2):
+def send_wol(iterations:int = 2):
     for i in range(iterations):
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) as netConnect:
             netConnect.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -77,7 +72,7 @@ def log_interaction(interaction: discord.Interaction):
     log(f"{interaction.user.global_name} used {interaction.command.name} in {interaction.channel} in {interaction.guild}")
 
 ### Used as a permission check for commands, checks if user is botOwner defined in the .env
-def is_owner(interaction: discord.Interaction):
+def is_owner(interaction:discord.Interaction):
     if str(interaction.user.id) == botOwner:
         return True
     return False
@@ -140,7 +135,7 @@ class Reply:
             self.port = "0"
 
 ### Function for sending a message to the Dedicated Server Controller machine and receiving a reply, includes the encryption/decryption functions
-def send_message(message, host):
+def send_message(message,host):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
     s.send(encrypt_message(message))
@@ -181,7 +176,7 @@ def wake_server():
             break
 
 ### Sends messages to the Dedicated Server machine that is running DedicatedServerController.py and returns a string for the end user based on results
-async def ask_server(request: str):
+async def ask_server(request:str):
     askFailure = False
     try: 
         host = socket.gethostbyname(DEDICATED_SERVER_HOSTNAME)

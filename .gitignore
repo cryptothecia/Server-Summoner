@@ -1,0 +1,10 @@
+Dedicated-Server-Scripts/PATHS
+Dedicated-Server-Scripts/.PATHS
+test/
+CurrentGame
+.shellcheckrc
+.env
+summonerlog.txt
+Dedicated-Server-Scripts/StopScripts/*
+Dedicated-Server-Scripts/StartScripts/*
+GameList.json
