@@ -33,7 +33,7 @@ buffer = 1024
 requestIsQueued = False
 queuedRequest = queuedRequestTime = requestTime = None
 
-with open('GameList.json', 'r') as file:
+with open(os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),"GameList.json"), 'r') as file:
     games = load_json(file)
 
 ### This section builds information for sending magic packets
