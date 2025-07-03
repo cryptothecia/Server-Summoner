@@ -56,8 +56,8 @@ if [[ -f $serverLocation ]]; then
             fi
         fi
     fi
-    if [[ -f "./StartScripts/$game" ]]; then
-        "./StartScripts/$game"
+    if [[ -f "./StartScripts/$game.sh" ]]; then
+        "./StartScripts/$game.sh"
     else
         "$serverLocation"
     fi
