@@ -33,6 +33,9 @@ while [[ $DesktopShutdown != "true" ]]; do
 done
 
 while [[ $systemBackedUp != "true" ]]; do
+	if [[ ! -e $systemBackupLocation ]]; then
+		mkdir "$systemBackupLocation"
+	fi
 	if [[ ! -z $(find "$systemBackupLocation" -name "*.tar.xz") ]]; then
 		i=0
 		for backup in "$systemBackupLocation"/DedicatedServerBackup*.tar.xz; do
