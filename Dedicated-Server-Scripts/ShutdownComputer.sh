@@ -2,11 +2,19 @@
 ### This script should be added to crontab, set to start at the time you want the dedicated server to start trying to shut down
 cd "$(dirname "$0")" || exit
 source ./.PATHS
+while getopts t o
+do
+	case "${o}" in
+		"t") test="true";;
+        *);;
+	esac
+done
+
 OLDIFS=$IFS
 IFS=',' read -r -a pingTargets <<< "$pingTargets"
 IFS=$OLDIFS
 
-while [[ $DesktopShutdown != "true" ]]; do
+while [[ $DesktopShutdown != "true" && $test != "true" ]]; do
 	### The computer running the DedicatedServerController pings the addresses in pingTargets and will only proceed with scheduled shutdown if all addresses give no ping response.
 	### If no pingTargets exist, then the DedicatedServerController will proceed with cleanup and shutdown as soon as the script is started
 	i=0
