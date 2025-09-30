@@ -40,11 +40,11 @@ with open(os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__fi
 MAC = os.getenv('DedicatedServerMAC')
 MACSplit = MAC.replace(MAC[2], '')
 MACBytes = ''.join(['FFFFFFFFFFFF', MACSplit * 20])
-MagicPacket = b''
+WOLPacket = b''
 
 for i in range(0, len(MACBytes), 2):
-    MagicPacket = b''.join([
-        MagicPacket,
+    WOLPacket = b''.join([
+        WOLPacket,
         struct.pack('B', int(MACBytes[i: i + 2], 16))
     ])
 
@@ -52,7 +52,7 @@ def send_wol(iterations:int = 2):
     for i in range(iterations):
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) as netConnect:
             netConnect.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-            netConnect.sendto(MagicPacket, ("255.255.255.255",7))
+            netConnect.sendto(WOLPacket, ("255.255.255.255",7))
 ### End magic packet build
 
 ### Logs command usage
