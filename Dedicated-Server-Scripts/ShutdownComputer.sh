@@ -61,7 +61,11 @@ while [[ $systemBackedUp != "true" ]]; do
 		doBackup="true"
 	fi
 	if [[ $doBackup == "true" ]]; then
-		tar -cvJf "$systemBackupLocation/DedicatedServerBackup$(date +%F).tar.xz" /etc /home /var /opt
+		if command -v pixz; then
+			nice -n 19 tar -c --use-compress-program=pixz -f "$systemBackupLocation/DedicatedServerBackup$(date +%F).tar.xz" /etc /home /var /opt
+		else
+			nice -n 19 tar -cJf "$systemBackupLocation/DedicatedServerBackup$(date +%F).tar.xz" /etc /home /var /opt
+		fi
 		while [[ $deleted != "true" ]]; do
 			i=0
 			for backup in "$systemBackupLocation"/DedicatedServerBackup*.tar.xz; do
