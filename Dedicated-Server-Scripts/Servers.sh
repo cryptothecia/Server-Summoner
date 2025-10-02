@@ -18,10 +18,7 @@ serverPort="${!serverPort}"
 if [[ -f $serverLocation ]]; then
     if [[ $VM != true ]]; then
         ### Checks if steamcmd is a valid command
-        steamCMD="/usr/games/steamcmd"
-        if [[ ! -x $steamCMD ]]; then
-            echo "SteamCMD is not installed."
-        elif [[ -x $steamCMD ]]; then
+        if command -v steamcmd; then
             ### Gets server directory and steamapps folder by searching for index of last slash, then tries to find appID
             slashIndex=$(echo "$serverLocation" | grep -ob "/" | tail -n 1 | tr -d :/)
             serverFolder=${serverLocation:0:(slashIndex + 1)}
@@ -56,6 +53,8 @@ if [[ -f $serverLocation ]]; then
             elif [[ -z $appID ]]; then
                 echo "No appID found."
             fi
+        else
+            echo "SteamCMD is not installed."
         fi
     fi
     if [[ -f "./StartScripts/$game.sh" ]]; then
