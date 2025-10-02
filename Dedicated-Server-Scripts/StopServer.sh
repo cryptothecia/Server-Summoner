@@ -20,7 +20,7 @@ fi
 serverStatus=$(systemctl is-active "${game}Server.service")
 if [[ $serverStatus == "active" ]]; then
     if [[ -f "./StopScripts/$game.sh" ]]; then
-        "./StartScripts/$game.sh"
+        "./StopScripts/$game.sh"
 		wait
     fi
 	sudo systemctl stop "${game}"Server.service
