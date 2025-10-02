@@ -12,6 +12,8 @@ done
 
 serverLocation=_${game}_ServerLocation
 serverLocation="${!serverLocation}"
+serverPort=_${game}_Port
+serverPort="${!serverPort}"
 
 if [[ -f $serverLocation ]]; then
     if [[ $VM != true ]]; then
@@ -59,6 +61,9 @@ if [[ -f $serverLocation ]]; then
     if [[ -f "./StartScripts/$game.sh" ]]; then
         "./StartScripts/$game.sh"
     else
+        if [[ $(firewall-cmd --state) == "running" ]]; then
+            firewall-cmd --add-port="$serverPort"/{tcp,udp}
+        fi
         "$serverLocation"
     fi
 else

@@ -11,6 +11,8 @@ done
 
 serverLocation=_${game}_ServerLocation
 serverLocation="${!serverLocation}"
+serverPort=_${game}_Port
+serverPort="${!serverPort}"
 
 backupStatus=$(systemctl status "${game}Backup.service" | grep -w -A 1 "Backup.sh -g ${game}" | grep -v 'Backup.sh')
 if [[ $backupStatus == *"sleep"* || -z "$backupStatus" ]]; then
@@ -24,4 +26,7 @@ if [[ $serverStatus == "active" ]]; then
 		wait
     fi
 	sudo systemctl stop "${game}"Server.service
+	if [[ $(firewall-cmd --state) == "running" ]]; then
+		firewall-cmd --remove-port="$serverPort"/{tcp,udp}
+	fi
 fi
