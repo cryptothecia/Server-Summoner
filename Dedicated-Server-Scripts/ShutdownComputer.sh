@@ -61,8 +61,10 @@ while [[ $systemBackedUp != "true" ]]; do
 		doBackup="true"
 	fi
 	if [[ $doBackup == "true" ]]; then
-		if command -v pixz; then
-			nice -n 19 tar -c --use-compress-program=pixz -f "$systemBackupLocation/DedicatedServerBackup$(date +%F).tar.xz" /etc /home /var /opt
+		compress=$(command -v pixz || command -v pxz)
+		if [[ $compress != "" ]]; then
+			compress=${compress/${compress%%"p"*}/}
+			nice -n 19 tar -c --use-compress-program="$compress" -f "$systemBackupLocation/DedicatedServerBackup$(date +%F).tar.xz" /etc /home /var /opt
 		else
 			nice -n 19 tar -cJf "$systemBackupLocation/DedicatedServerBackup$(date +%F).tar.xz" /etc /home /var /opt
 		fi
