@@ -28,5 +28,6 @@ if [[ $serverStatus == "active" ]]; then
 	sudo systemctl stop "${game}"Server.service
 	if [[ $(firewall-cmd --state) == "running" ]]; then
 		firewall-cmd --remove-port="$serverPort"/{tcp,udp}
+		firewall-cmd --reload
 	fi
 fi
