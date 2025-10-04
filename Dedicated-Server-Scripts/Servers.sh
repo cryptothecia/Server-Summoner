@@ -61,7 +61,7 @@ if [[ -f $serverLocation ]]; then
         fi
     fi
     if [[ $(firewall-cmd --state) == "running" ]]; then
-        firewall-cmd --add-port="$serverPort"/{tcp,udp}
+        firewall-cmd --zone=public --add-port="$serverPort"/{tcp,udp}
         firewall-cmd --reload
     fi
     if [[ -f "./StartScripts/$game.sh" ]]; then
