@@ -9,7 +9,8 @@ import string
 from cryptography.fernet import Fernet
 
 servicePath = '/etc/systemd/system/*Server.service'
-PATHSfile = os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),".PATHS")
+parentPath = (os.path.abspath(__file__)).replace(os.path.basename(__file__),"")
+PATHSfile = os.path.join(parentPath,".PATHS")
 external_ip = None
 games = []
 botHost = ''
@@ -56,19 +57,18 @@ def get_games():
 
 ### Assuming any Server.service exists, creates new Server, ServerStop and Backup .services for the requested game  
 def create_game_services(game:str):
-    path = servicePath.replace('*',games[0])
-    with open(path,"r") as f:
-        serverService=(f.read()).replace(games[0],game).replace("Description=*\n",f"Description={game} server.\n")
-    with open(path.replace("Server.service","Backup.service"),"r") as f:
-        backupService=(f.read()).replace(games[0],game).replace("Description=*\n",f"Description=Service for backing up {game} server.\n")
-    with open(path.replace("Server.service","ServerStop.service"),"r") as f:
-        serverStopService=(f.read()).replace(games[0],game).replace("Description=*\n",f"Description=Stops {game} server.\n")
+    path = servicePath.replace('*',game)
+    with open(os.path.join(parentPath,"TEMPLATE_Server.service"),"r") as f:
+        serverService=(f.read()).replace("Game",game)
+    with open(os.path.join(parentPath,"TEMPLATE_Backup.service"),"r") as f:
+        backupService=(f.read()).replace("Game",game)
+    with open(os.path.join(parentPath,"TEMPLATE_ServerStop.service"),"r") as f:
+        serverStopService=(f.read()).replace("Game",game)
     def create_service(servicePath, serviceBody):
         with open(servicePath,"w") as f:
             f.write(serviceBody)
         if (os.path.isfile(servicePath)) is True:
             subprocess.run(["sudo", "chmod", "+x", servicePath], text=True)
-    path = path.replace(games[0],game)
     create_service(path,serverService)
     create_service(path.replace("Server.service","Backup.service"),backupService)
     create_service(path.replace("Server.service","ServerStop.service"),serverStopService)
