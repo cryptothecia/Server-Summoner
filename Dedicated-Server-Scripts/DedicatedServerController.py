@@ -55,15 +55,15 @@ def get_games():
         games[i] = game.replace((servicePath.split("*"))[0],'').replace((servicePath.split("*"))[1],'')
         i+=1
 
-### Assuming any Server.service exists, creates new Server, ServerStop and Backup .services for the requested game  
+### Creates new Server, ServerStop and Backup .services for the requested game
 def create_game_services(game:str):
     path = servicePath.replace('*',game)
     with open(os.path.join(parentPath,"TEMPLATE_Server.service"),"r") as f:
-        serverService=(f.read()).replace("Game",game).replace("PATH",parentPath)
+        serverService=(f.read()).replace("Game",game).replace("PATH",str(parentPath))
     with open(os.path.join(parentPath,"TEMPLATE_Backup.service"),"r") as f:
-        backupService=(f.read()).replace("Game",game).replace("PATH",parentPath)
+        backupService=(f.read()).replace("Game",game).replace("PATH",str(parentPath))
     with open(os.path.join(parentPath,"TEMPLATE_ServerStop.service"),"r") as f:
-        serverStopService=(f.read()).replace("Game",game).replace("PATH",parentPath)
+        serverStopService=(f.read()).replace("Game",game).replace("PATH",str(parentPath))
     def create_service(servicePath, serviceBody):
         with open(servicePath,"w") as f:
             f.write(serviceBody)
