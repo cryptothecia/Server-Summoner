@@ -7,6 +7,7 @@ import urllib.request
 import random
 import string
 from cryptography.fernet import Fernet
+from time import sleep
 
 servicePath = '/etc/systemd/system/*Server.service'
 parentPath = (os.path.abspath(__file__)).replace(os.path.basename(__file__),"")
@@ -26,6 +27,7 @@ while external_ip is None:
         external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
     except:
         print("external_ip retrieval failed")
+        sleep(30)
 
 ### Function for searching .PATHS for different variables
 def read_PATHS(query):
