@@ -43,7 +43,7 @@ if [[ $install == true ]]; then
         mkdir "$serverLocation"
     fi
     updateGame "$game" "$appID"
-elif [[ -f $serverLocation && $install == false ]]; then
+elif [[ -f $serverLocation && $install != true ]]; then
     if [[ $VM != true ]]; then
         ### Checks if steamcmd is a valid command
         if command -v steamcmd; then
