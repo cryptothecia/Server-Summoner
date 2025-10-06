@@ -7,7 +7,7 @@ StartLimitIntervalSec=60
 User=server
 Restart=always
 RestartSec=5s
-ExecStart=/Servers.sh -g "Game"
+ExecStart=PATH/Servers.sh -g "Game"
 
 [Install]
 WantedBy=multi-user.target

@@ -3,7 +3,7 @@ Description=Stops Game Server
 
 [Service]
 Type=oneshot
-ExecStart=/StopServer.sh -g "Game"
+ExecStart=PATH/StopServer.sh -g "Game"
 TimeoutSec=60
 
 [Install]
