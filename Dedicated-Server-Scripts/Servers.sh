@@ -78,9 +78,6 @@ elif [[ -f $serverLocation && $install != true ]]; then
             echo "SteamCMD is not installed."
         fi
     fi
-    if [[ $(firewall-cmd --state) == "running" ]]; then
-        firewall-cmd --zone=public --add-port="$serverPort"/{tcp,udp}
-    fi
     if [[ -f "./StartScripts/$game.sh" ]]; then
         "./StartScripts/$game.sh"
     else
