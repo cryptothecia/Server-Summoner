@@ -31,7 +31,7 @@ updateGame() {
     updateScriptTemplate=$(cat ./update_game_template.txt)
     updateScriptBody=${updateScriptTemplate//appid/$2}
     updateScriptBody=${updateScriptBody//steam-library/$serverFolder}
-    echo "$updateScriptBody"
+    ### If a script isn't found or script doesn't match modified template, a new one is created
     if [[ ! -f "$updateScript" || $(cat "$updateScript") != "$updateScriptBody" ]]; then
         echo "$updateScriptBody" > "$updateScript"
         echo "Creating new update script."
@@ -60,11 +60,6 @@ elif [[ -f $serverLocation && $install != true ]]; then
             ### Only proceeds with creating or running script if an appID was found
             if [[ -n $appID ]]; then
                 updateGame "$game" "$appID"
-                ### If a script isn't found or script doesn't match modified template, a new one is created
-                if [[ ! -f "$updateScript" || $(cat "$updateScript") != "$updateScriptBody" ]]; then
-                    echo "$updateScriptBody" > "$updateScript"
-                    echo "Creating new update script."
-                fi
                 if [[ -f "$updateScript" ]]; then
                     steamcmd +runscript "$updateScript"
                     echo "Running update script."
