@@ -30,7 +30,7 @@ while [[ $DesktopShutdown != "true" && $test != "true" ]]; do
 		if [[ ! -z $serverStatus ]]; then 
 			runningServers=$(systemctl status -- *Server.service | grep -o '.system.slice.*Server.service' | sed 's/.system.slice.//' | sed 's/Server.service//')
 			for game in $runningServers; do
-				source ./StopServer.sh -g "${game}"
+				./StopServer.sh -g "${game}"
 			done
 		fi
 		DesktopShutdown="true"
