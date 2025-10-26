@@ -124,7 +124,7 @@ def reply(request):
                 else:
                     return r + f" running::0"
         case "shutdown":
-            subprocess.run(['sudo', 'systemctl', 'start', 'ShutdownComputer.service'], text=True)
+            subprocess.Popen(['sudo', 'systemctl', 'start', 'ShutdownComputer.service'], text=True)
             return "shutting down"
         case request if request != "status" and request != "shutdown":
             serverStatus, backupStatus = check_game_services(request,True)
