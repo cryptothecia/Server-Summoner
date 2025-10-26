@@ -26,6 +26,7 @@ while [[ $DesktopShutdown != "true" && $test != "true" ]]; do
 	anyOnline=$(echo "${pingResults[@]}" | wc -w)
 	if [[ $anyOnline -eq 0 ]]; then
 	((PingFails++))
+	fi
 	if [[ $PingFails -ge 2 || $skipPings == "true" ]]; then
 		serverStatus=$(systemctl is-active -- *Server.service | grep -v "inactive") 
 		if [[ ! -z $serverStatus ]]; then 
@@ -36,12 +37,10 @@ while [[ $DesktopShutdown != "true" && $test != "true" ]]; do
 		fi
 		DesktopShutdown="true"
 	fi
-	else
-		sleep $((5*60))
-	fi
+	sleep $((5*60))
 done
 
-while [[ $systemBackedUp != "true" ]]; do
+while [[ $systemBackedUp != "true" && $skipPings != "true" ]]; do
 	if [[ ! -e $systemBackupLocation ]]; then
 		mkdir "$systemBackupLocation"
 	fi
@@ -90,4 +89,4 @@ while [[ $systemBackedUp != "true" ]]; do
 done
 
 sudo systemctl stop DedicatedServerController.service
-sudo systemctl start ShutdownComputer.service
+sudo shutdown -h now
