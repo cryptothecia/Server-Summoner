@@ -24,9 +24,7 @@ while [[ $DesktopShutdown != "true" && $test != "true" ]]; do
 		((i++))
 	done
 	anyOnline=$(echo "${pingResults[@]}" | wc -w)
-	if [[ $anyOnline -eq 0 ]]; then
-	((PingFails++))
-	fi
+	if [[ $anyOnline -eq 0 ]]; then	((PingFails++)); fi
 	if [[ $PingFails -ge 2 || $skipPings == "true" ]]; then
 		serverStatus=$(systemctl is-active -- *Server.service | grep -v "inactive") 
 		if [[ ! -z $serverStatus ]]; then 
@@ -37,7 +35,7 @@ while [[ $DesktopShutdown != "true" && $test != "true" ]]; do
 		fi
 		DesktopShutdown="true"
 	fi
-	sleep $((5*60))
+	if [[ $DesktopShutdown != "true" ]]; then sleep $((5*60)); fi
 done
 
 while [[ $systemBackedUp != "true" && $skipPings != "true" ]]; do
