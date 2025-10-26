@@ -71,6 +71,9 @@ def log(logMessage: str):
 def log_interaction(interaction: discord.Interaction):
     log(f"{interaction.user.global_name} used {interaction.command.name} in {interaction.channel} in {interaction.guild}")
 
+def log_deny(interaction: discord.Interaction):
+    log(f"{interaction.user.global_name} tried to use {interaction.command.name} in {interaction.channel} in {interaction.guild}, but the command was denied.")
+
 ### Used as a permission check for commands, checks if user is botOwner defined in the .env
 def is_owner(interaction:discord.Interaction):
     if str(interaction.user.id) == botOwner:
@@ -87,7 +90,8 @@ responsesFromServer = [
     "Bringing {game} server online.",
     " running",
     "Error",
-    "No request made"
+    "No request made",
+    "shutting down"
 ]
 askServerReturnMessages = {
     "Starting" : responsesFromServer[0],
@@ -95,7 +99,8 @@ askServerReturnMessages = {
     "Started" : "The dedicated server reports it is online running {game} at {ip}:{port}.",
     "Idle" : "The dedicated server is online but not running any games.",
     "Error" : "Oh dear, something went wrong. Sorry.",
-    "Offline" : "The dedicated server is not online."
+    "Offline" : "The dedicated server is not online.",
+    "Shutdown" : "The dedicated server machine is shutting down."
 }
 
 ### Builds salt string for messages between SummonerBot and Dedicated Server Controller
@@ -229,6 +234,8 @@ async def ask_server(request:str):
                 else:
                     await set_bot_status()
                     return askServerReturnMessages["Idle"]
+            case reply.text if responsesFromServer[4] in reply.text:
+                return askServerReturnMessages["Shutdown"]
             case _:
                 return askServerReturnMessages["Error"]
     except Exception as e:
@@ -284,7 +291,21 @@ async def summonlogs(interaction: discord.Interaction,number_of_lines: int = 20)
 @summonlogs.error
 async def on_error(interaction: discord.Interaction, error):
     await interaction.response.defer(ephemeral=True,thinking=True)
-    log(f"{interaction.user.global_name} tried to use {interaction.command.name} in {interaction.channel} in {interaction.guild}, but the command was denied.")
+    log_deny(interaction)
     await interaction.followup.send("You do not have permissions for this command.",ephemeral=True)
+
+@tree.command(name="shutdown_server",description=f"Shutdown Server role only. Shuts down server machine.")
+async def shutdown_server(interaction: discord.Interaction):
+    await interaction.response.defer(ephemeral=True,thinking=True)
+    log_interaction(interaction)
+    role_check = False
+    for role in interaction.user.roles:
+        if role.name == "Shutdown Server":
+            role_check = True
+    if role_check == True:
+        await interaction.followup.send("Shutting down server.",ephemeral=True)
+    else:
+        log_deny(interaction)
+        await interaction.followup.send("You do not have permissions for this command.",ephemeral=True)
 
 bot.run(DISCORD_TOKEN)

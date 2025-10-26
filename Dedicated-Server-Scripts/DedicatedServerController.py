@@ -123,7 +123,10 @@ def reply(request):
                     return r + f" running::{external_ip}::{rPort}"
                 else:
                     return r + f" running::0"
-        case request if request != "status":
+        case "shutdown":
+            subprocess.run(['sudo', 'systemctl', 'start', 'ShutdownComputer.service'], text=True)
+            return "shutting down"
+        case request if request != "status" and request != "shutdown":
             serverStatus, backupStatus = check_game_services(request,True)
             if serverStatus == "inactive":
                 activeGames = get_current_game()
