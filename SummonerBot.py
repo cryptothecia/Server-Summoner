@@ -303,7 +303,8 @@ async def shutdown_server(interaction: discord.Interaction):
         if role.name == "Shutdown Server":
             role_check = True
     if role_check == True:
-        await interaction.followup.send("Shutting down server.",ephemeral=True)
+        messageToUser = await ask_server("shutdown")
+        await interaction.followup.send(messageToUser,ephemeral=True)
     else:
         log_deny(interaction)
         await interaction.followup.send("You do not have permissions for this command.",ephemeral=True)
