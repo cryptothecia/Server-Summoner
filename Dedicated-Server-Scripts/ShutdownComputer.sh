@@ -1,11 +1,12 @@
 #! /bin/bash
-### This script should be added to crontab, set to start at the time you want the dedicated server to start trying to shut down
+### This script should be added to crontab, set to start at the time you want the dedicated server to start trying to shut down. It can also be run as ShutdownComputer.service with -n option to initiate a server shutdown that closes all open games first
 cd "$(dirname "$0")" || exit
 source ./.PATHS
-while getopts t o
+while getopts tn o
 do
 	case "${o}" in
 		"t") test="true";;
+		"n") skipPings="true";;
         *);;
 	esac
 done
@@ -25,7 +26,7 @@ while [[ $DesktopShutdown != "true" && $test != "true" ]]; do
 	anyOnline=$(echo "${pingResults[@]}" | wc -w)
 	if [[ $anyOnline -eq 0 ]]; then
 	((PingFails++))
-	if [[ $PingFails -ge 2 ]]; then
+	if [[ $PingFails -ge 2 || $skipPings == "true" ]]; then
 		serverStatus=$(systemctl is-active -- *Server.service | grep -v "inactive") 
 		if [[ ! -z $serverStatus ]]; then 
 			runningServers=$(systemctl status -- *Server.service | grep -o '.system.slice.*Server.service' | sed 's/.system.slice.//' | sed 's/Server.service//')
