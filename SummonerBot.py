@@ -257,7 +257,6 @@ async def auto_status_update():
 ### Mostly just a wrapper for ask_server
 async def summon(summonedGame, interaction, ephemeral_choice = True):
     await interaction.response.defer(ephemeral=ephemeral_choice,thinking=True)
-    log_interaction(interaction,option=summonedGame)
     messageToUser = await ask_server(summonedGame)
     await interaction.followup.send(messageToUser,ephemeral=ephemeral_choice)
     if ephemeral_choice is True:
@@ -272,11 +271,13 @@ async def summonstatus(interaction: discord.Interaction, public_answer: Literal[
         ephemeral_choice = True
     else:
         ephemeral_choice = False
+    log_interaction(interaction,public_answer)
     await summon("status",interaction=interaction,ephemeral_choice=ephemeral_choice)
     
 @tree.command(name="summongame",description=f"Send a request to bring a game server online.")
 async def summongame(interaction: discord.Interaction, 
                      game: Literal[tuple(games.keys())]): # type: ignore
+    log_interaction(interaction,option=game)
     await summon(game,interaction=interaction)
 
 ### ADMIN ONLY COMMANDS
