@@ -68,19 +68,21 @@ def log(logMessage: str):
             except: 
                 f.write(time.strftime("%Y/%m/%d_%H:%M:%S") + ":: " + "A log entry was attempted, but an error occurred." + "\n")
 
-def log_interaction(interaction: discord.Interaction):
-    log(f"{interaction.user.global_name} used {interaction.command.name} in {interaction.channel} in {interaction.guild}")
+def log_interaction(interaction: discord.Interaction, option=""):
+    if option != "":
+        option = " " + option
+    log(f"{interaction.user.global_name} used /{interaction.command.name}{option} in {interaction.channel} in {interaction.guild}")
 
 def log_deny(interaction: discord.Interaction):
     log(f"{interaction.user.global_name} tried to use {interaction.command.name} in {interaction.channel} in {interaction.guild}, but the command was denied.")
 
 ### Used as a permission check for commands, checks if user is botOwner defined in the .env
-def is_owner(interaction:discord.Interaction):
+def is_owner(interaction: discord.Interaction):
     if str(interaction.user.id) == botOwner:
         return True
     return False
 
-async def set_bot_status(status=None):
+async def set_bot_status(status = None):
     if status is None:
         await bot.change_presence()
     else: 
@@ -140,7 +142,7 @@ class Reply:
             self.port = "0"
 
 ### Function for sending a message to the Dedicated Server Controller machine and receiving a reply, includes the encryption/decryption functions
-def send_message(message,host):
+def send_message(message, host):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
     s.send(encrypt_message(message))
@@ -181,7 +183,7 @@ def wake_server():
             break
 
 ### Sends messages to the Dedicated Server machine that is running DedicatedServerController.py and returns a string for the end user based on results
-async def ask_server(request:str):
+async def ask_server(request: str):
     askFailure = False
     try: 
         host = socket.gethostbyname(DEDICATED_SERVER_HOSTNAME)
@@ -253,9 +255,9 @@ async def auto_status_update():
     await ask_server("status")
 
 ### Mostly just a wrapper for ask_server
-async def summon(summonedGame,interaction,ephemeral_choice = True):
+async def summon(summonedGame, interaction, ephemeral_choice = True):
     await interaction.response.defer(ephemeral=ephemeral_choice,thinking=True)
-    log_interaction(interaction)
+    log_interaction(interaction,option=summonedGame)
     messageToUser = await ask_server(summonedGame)
     await interaction.followup.send(messageToUser,ephemeral=ephemeral_choice)
     if ephemeral_choice is True:
@@ -265,7 +267,7 @@ async def summon(summonedGame,interaction,ephemeral_choice = True):
     
 ### LIST OF COMMANDS STARTS HERE
 @tree.command(name="summonstatus",description=f"Get server status.")
-async def summonstatus(interaction: discord.Interaction,public_answer: Literal[("No","Yes")]): # type: ignore
+async def summonstatus(interaction: discord.Interaction, public_answer: Literal[("No","Yes")]): # type: ignore
     if public_answer == "No":
         ephemeral_choice = True
     else:
@@ -280,7 +282,7 @@ async def summongame(interaction: discord.Interaction,
 ### ADMIN ONLY COMMANDS
 @tree.command(name="summonlogs",description=f"ADMIN ONLY. Returns latest log entries.")
 @app_commands.check(is_owner)
-async def summonlogs(interaction: discord.Interaction,number_of_lines: int = 20):
+async def summonlogs(interaction: discord.Interaction, number_of_lines: int = 20):
     await interaction.response.defer(ephemeral=True,thinking=True)
     messageToUser = []
     with open(LOGFILE, "r", encoding="utf-8") as f:
