@@ -14,10 +14,12 @@ serverLocation="${!serverLocation}"
 serverPort=_${game}_Port
 serverPort="${!serverPort}"
 
-backupStatus=$(systemctl status "${game}Backup.service" | grep -w -A 1 "Backup.sh -g ${game}" | grep -v 'Backup.sh')
-if [[ $backupStatus == *"sleep"* || -z "$backupStatus" ]]; then
-	sudo systemctl stop "${game}Backup.service"
-fi
+until [[ $(systemctl is-active "${game}Backup.service") == "inactive" ]]; do
+	backupStatus=$(systemctl status "${game}Backup.service" | grep -w -A 1 "Backup.sh -g ${game}" | grep -v 'Backup.sh')
+	if [[ $backupStatus == *"sleep"* || -z "$backupStatus" ]]; then
+		sudo systemctl stop "${game}Backup.service"
+	fi
+done
 
 serverStatus=$(systemctl is-active "${game}Server.service")
 if [[ $serverStatus == "active" ]]; then
