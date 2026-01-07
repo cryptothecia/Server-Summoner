@@ -44,14 +44,14 @@ with open(f_path, 'r') as file:
 
 # This section builds information for sending magic packets
 MAC = os.getenv('DedicatedServerMAC')
-MAC_split = MAC.replace(MAC[2], '')
-MAC_bytes = ''.join(['FFFFFFFFFFFF', MAC_split * 20])
-WOL_packet = b''
+mac_split = MAC.replace(MAC[2], '')
+mac_bytes = ''.join(['FFFFFFFFFFFF', mac_split * 20])
+wol_packet = b''
 
-for i in range(0, len(MAC_bytes), 2):
-    WOL_packet = b''.join([
-        WOL_packet,
-        struct.pack('B', int(MAC_bytes[i: i + 2], 16))
+for i in range(0, len(mac_bytes), 2):
+    wol_packet = b''.join([
+        wol_packet,
+        struct.pack('B', int(mac_bytes[i: i + 2], 16))
     ])
 
 def send_wol(iterations:int = 2):
@@ -62,7 +62,7 @@ def send_wol(iterations:int = 2):
                             socket.IPPROTO_UDP
                         ) as net_connect:
             net_connect.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-            net_connect.sendto(WOL_packet, ("255.255.255.255",7))
+            net_connect.sendto(wol_packet, ("255.255.255.255",7))
 # End magic packet build
 
 # Logs command usage
