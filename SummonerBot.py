@@ -1,5 +1,6 @@
-### Server Summoner Discord Bot, to be run on a machine with more uptime than Dedicated Server Controller, so that it can listen to and respond to Discord messages, 
-### and then wake the Dedicated Server machine as needed
+# Server Summoner Discord Bot, to be run on a machine with more uptime than 
+# Dedicated Server Controller, so that it can listen to and respond to 
+# Discord messages, and then wake the Dedicated Server machine as needed
 import os
 import discord
 import socket
@@ -22,7 +23,10 @@ DEDICATED_SERVER_TOKEN = os.getenv('DEDICATED_SERVER_TOKEN')
 DEDICATED_SERVER_HOSTNAME = os.getenv('DEDICATED_SERVER_HOSTNAME')
 fernet = Fernet(DEDICATED_SERVER_TOKEN)
 LOGGING = (os.getenv('LOGGING')) == "True"
-LOGFILE = os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),"summonerlog.txt")
+LOGFILE = os.path.join(
+    (os.path.abspath(__file__)).replace(os.path.basename(__file__),""),
+    "summonerlog.txt"
+    )
 botOwner = os.getenv('BotOwnerID')
 intents = discord.Intents.default()
 intents.message_content = True
@@ -33,10 +37,12 @@ buffer = 1024
 requestIsQueued = False
 queuedRequest = queuedRequestTime = requestTime = None
 
-with open(os.path.join((os.path.abspath(__file__)).replace(os.path.basename(__file__),""),"GameList.json"), 'r') as file:
+p_path = (os.path.abspath(__file__)).replace(os.path.basename(__file__),"")
+f_path = os.path.join(p_path, "GameList.json")
+with open(f_path, 'r') as file:
     games = load_json(file)
 
-### This section builds information for sending magic packets
+# This section builds information for sending magic packets
 MAC = os.getenv('DedicatedServerMAC')
 MACSplit = MAC.replace(MAC[2], '')
 MACBytes = ''.join(['FFFFFFFFFFFF', MACSplit * 20])
@@ -50,12 +56,16 @@ for i in range(0, len(MACBytes), 2):
 
 def send_wol(iterations:int = 2):
     for i in range(iterations):
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) as netConnect:
+        with socket.socket(
+                            socket.AF_INET, 
+                            socket.SOCK_DGRAM, 
+                            socket.IPPROTO_UDP
+                        ) as netConnect:
             netConnect.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
             netConnect.sendto(WOLPacket, ("255.255.255.255",7))
-### End magic packet build
+# End magic packet build
 
-### Logs command usage
+# Logs command usage
 def log(logMessage: str):
     if LOGGING is True:
         if (os.path.isfile(LOGFILE)) is False:
@@ -64,19 +74,32 @@ def log(logMessage: str):
         with open(LOGFILE, "a", encoding="utf-8") as f:
             time = datetime.datetime.now()
             try: 
-                f.write(time.strftime("%Y/%m/%d_%H:%M:%S") + ":: " + logMessage + "\n")
+                f.write(time.strftime("%Y/%m/%d_%H:%M:%S") 
+                        + ":: " 
+                        + logMessage 
+                        + "\n")
             except: 
-                f.write(time.strftime("%Y/%m/%d_%H:%M:%S") + ":: " + "A log entry was attempted, but an error occurred." + "\n")
+                f.write(time.strftime("%Y/%m/%d_%H:%M:%S") 
+                        + ":: " 
+                        + "A log entry was attempted, but an error occurred." 
+                        + "\n")
 
 def log_interaction(interaction: discord.Interaction, option=""):
     if option != "":
         option = " " + option
-    log(f"{interaction.user.global_name} used /{interaction.command.name}{option} in {interaction.channel} in {interaction.guild}")
+    log(f"{interaction.user.global_name} used "
+        f"/{interaction.command.name}{option} in "
+        f"{interaction.channel} in "
+        f"{interaction.guild}")
 
 def log_deny(interaction: discord.Interaction):
-    log(f"{interaction.user.global_name} tried to use {interaction.command.name} in {interaction.channel} in {interaction.guild}, but the command was denied.")
+    log(f"{interaction.user.global_name} tried to use "
+        f"{interaction.command.name} in "
+        f"{interaction.channel} in "
+        f"{interaction.guild}, but the command was denied.")
 
-### Used as a permission check for commands, checks if user is botOwner defined in the .env
+# Used as a permission check for commands, checks if user is botOwner defined 
+# in the .env
 def is_owner(interaction: discord.Interaction):
     if str(interaction.user.id) == botOwner:
         return True
@@ -88,30 +111,33 @@ async def set_bot_status(status = None):
     else: 
         await bot.change_presence(activity=discord.Game(name=f"{status}"))
 
-responsesFromServer = [
+resFromServer = [
     "Bringing {game} server online.",
     " running",
     "Error",
     "No request made",
     "shutting down"
 ]
-askServerReturnMessages = {
-    "Starting" : responsesFromServer[0],
-    "Timeout" : "The dedicated server was requested to come online {time} minutes ago, but is still not responding.",
-    "Started" : "The dedicated server reports it is online running {game} at {ip}:{port}.",
+askMessages = {
+    "Starting" : resFromServer[0],
+    "Timeout" : "The dedicated server was requested to come online "
+        "{time} minutes ago, but is still not responding.",
+    "Started" : "The dedicated server reports it is online running "
+        "{game} at {ip}:{port}.",
     "Idle" : "The dedicated server is online but not running any games.",
     "Error" : "Oh dear, something went wrong. Sorry.",
     "Offline" : "The dedicated server is not online.",
     "Shutdown" : "The dedicated server machine is shutting down."
 }
 
-### Builds salt string for messages between SummonerBot and Dedicated Server Controller
+# Builds salt string for messages between SummonerBot and Dedicated Server 
+# Controller
 def make_salt():
     chars = string.ascii_letters + string.punctuation + string.digits
     chars = chars.replace(':','')
     return ''.join(random.choice(chars) for x in range(20))
 
-### Functions for encrypting & encoding and decrypting & decoding strings
+# Functions for encrypting & encoding and decrypting & decoding strings
 def encrypt_message(message):
     salt = make_salt()
     message = salt + "::" + message
@@ -123,7 +149,8 @@ def decrypt_message(message):
     del message[0]
     return message
 
-### decrypt_message() takes reply from the server and split it into a list, this turns that list into a Reply object
+# decrypt_message() takes reply from the server and split it into a list, 
+# this turns that list into a Reply object
 class Reply:
     def __init__(self, rawReply):
         if not isinstance(rawReply, list):
@@ -141,7 +168,8 @@ class Reply:
         except: 
             self.port = "0"
 
-### Function for sending a message to the Dedicated Server Controller machine and receiving a reply, includes the encryption/decryption functions
+# Function for sending a message to the Dedicated Server Controller machine and
+# receiving a reply, includes the encryption/decryption functions
 def send_message(message, host):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
@@ -154,7 +182,8 @@ def send_message(message, host):
     reply = Reply(reply)
     return reply
 
-### This is only used in a seperate thread to wake up the Dedicated Server machine
+# This is only used in a seperate thread to wake up the 
+# Dedicated Server machine
 def wake_server():
     serverOnline = False
     wakeLoops = 0
@@ -166,23 +195,27 @@ def wake_server():
                 global requestIsQueued
                 global queuedRequest
                 reply = send_message(queuedRequest, host)
-                if reply == responsesFromServer[0].format(game = queuedRequest):
+                if reply == resFromServer[0].format(game = queuedRequest):
                     set_bot_status(games[queuedRequest]["LongName"])
                 requestIsQueued = False
                 queuedRequest = None
                 serverOnline = True
             except: 
-                print("wake_server can find IP but can't send a message, sleeping.")
+                print("wake_server can find IP "
+                      "but can't send a message, sleeping.")
                 time.sleep(10)
         except:
             print("wake_server cannot find IP, sleeping.")
             time.sleep(10)
         wakeLoops += 1
         if wakeLoops > 20:
-            print("wake_server has run more than 20 times, stopping wake_server")
+            print("wake_server has run more than 20 times,"
+                  " stopping wake_server")
             break
 
-### Sends messages to the Dedicated Server machine that is running DedicatedServerController.py and returns a string for the end user based on results
+# Sends messages to the Dedicated Server machine that is running 
+# DedicatedServerController.py and returns a string for the end user based on 
+# results
 async def ask_server(request: str):
     askFailure = False
     try: 
@@ -203,43 +236,57 @@ async def ask_server(request: str):
             requestIsQueued = True
             global requestTime
             requestTime = time.time()
-            thread = Thread(target=wake_server,daemon=True)
+            thread = Thread(target=wake_server, daemon=True)
             thread.start()
-            return askServerReturnMessages["Starting"].format(game = games[request]["LongName"])
+            return (askMessages["Starting"]
+                    .format(game = games[request]["LongName"]))
         else:
             if (time.time() - requestTime) > (10*60):
-                return askServerReturnMessages["Timeout"].format(time = f"{(time.time() - requestTime)/60:.0f}")
+                return (
+                        askMessages["Timeout"]
+                        .format(time = f"{(time.time() - requestTime)/60:.0f}")
+                        )
             else:
-                return askServerReturnMessages["Starting"].format(game = games[request]["LongName"])
+                return (askMessages["Starting"]
+                        .format(game = games[request]["LongName"]))
     elif askFailure is True:
         await set_bot_status()
-        return askServerReturnMessages["Offline"]
+        return askMessages["Offline"]
     try:
         match reply.text: 
-            case reply.text if reply.text == responsesFromServer[0].format(game = request):
+            case reply.text if reply.text == (resFromServer[0]
+                                              .format(game=request)):
                 await set_bot_status(games[request]["LongName"])
-                return askServerReturnMessages["Starting"].format(game = games[request]["LongName"]).replace(".","") + f" at {reply.ip}:{reply.port}."
-            case reply.text if responsesFromServer[1] in reply.text:
-                activeGames = reply.text.replace(responsesFromServer[1],"")
+                return (askMessages["Starting"]
+                        .format(game=games[request]["LongName"])
+                        .replace(".","") 
+                        + f" at {reply.ip}:{reply.port}.")
+            case reply.text if resFromServer[1] in reply.text:
+                activeGames = reply.text.replace(resFromServer[1],"")
                 if activeGames != "":
                     i=0
                     for game in games:
                         if game in activeGames:
                             replacement = True
-                            activeGames = activeGames.replace(list(games.keys())[i],games[list(games.keys())[i]]["LongName"])
+                            activeGames = activeGames.replace(
+                                list(games.keys())[i],
+                                games[list(games.keys())[i]]["LongName"]
+                                )
                             activeGames = activeGames + " and "
                         i+=1
                     if replacement == True:
                         activeGames = activeGames[:-5]
                     await set_bot_status(activeGames)
-                    return askServerReturnMessages["Started"].format(game = activeGames, ip = reply.ip, port = reply.port)
+                    return askMessages["Started"].format(game=activeGames, 
+                                                         ip=reply.ip, 
+                                                         port=reply.port)
                 else:
                     await set_bot_status()
-                    return askServerReturnMessages["Idle"]
-            case reply.text if responsesFromServer[4] in reply.text:
-                return askServerReturnMessages["Shutdown"]
+                    return askMessages["Idle"]
+            case reply.text if resFromServer[4] in reply.text:
+                return askMessages["Shutdown"]
             case _:
-                return askServerReturnMessages["Error"]
+                return askMessages["Error"]
     except Exception as e:
         print(e)
 
@@ -254,36 +301,45 @@ async def on_ready():
 async def auto_status_update():
     await ask_server("status")
 
-### Mostly just a wrapper for ask_server
+# Mostly just a wrapper for ask_server
 async def summon(summonedGame, interaction, ephemeral_choice = True):
     await interaction.response.defer(ephemeral=ephemeral_choice,thinking=True)
     messageToUser = await ask_server(summonedGame)
     await interaction.followup.send(messageToUser,ephemeral=ephemeral_choice)
     if ephemeral_choice is True:
-        log(f"Sent to {interaction.user.global_name}: \"" + messageToUser + "\"")
+        log(f"Sent to {interaction.user.global_name}: \"" 
+            + messageToUser 
+            + "\"")
     else: 
         log(f"Sent to {interaction.channel}: \"" + messageToUser + "\"")
     
-### LIST OF COMMANDS STARTS HERE
-@tree.command(name="summonstatus",description=f"Get server status.")
-async def summonstatus(interaction: discord.Interaction, public_answer: Literal[("No","Yes")]): # type: ignore
+# LIST OF COMMANDS STARTS HERE
+@tree.command(name="summonstatus",
+              description=f"Get server status.")
+async def summonstatus(interaction: discord.Interaction, 
+                       public_answer: Literal[("No","Yes")]): # type: ignore
     if public_answer == "No":
         ephemeral_choice = True
     else:
         ephemeral_choice = False
     log_interaction(interaction,public_answer)
-    await summon("status",interaction=interaction,ephemeral_choice=ephemeral_choice)
+    await summon("status",
+                 interaction=interaction,
+                 ephemeral_choice=ephemeral_choice)
     
-@tree.command(name="summongame",description=f"Send a request to bring a game server online.")
+@tree.command(name="summongame",
+              description=f"Send a request to bring a game server online.")
 async def summongame(interaction: discord.Interaction, 
                      game: Literal[tuple(games.keys())]): # type: ignore
     log_interaction(interaction,option=game)
     await summon(game,interaction=interaction)
 
-### ADMIN ONLY COMMANDS
-@tree.command(name="summonlogs",description=f"ADMIN ONLY. Returns latest log entries.")
+# ADMIN ONLY COMMANDS
+@tree.command(name="summonlogs",
+              description=f"ADMIN ONLY. Returns latest log entries.")
 @app_commands.check(is_owner)
-async def summonlogs(interaction: discord.Interaction, number_of_lines: int = 20):
+async def summonlogs(interaction: discord.Interaction, 
+                     number_of_lines: int = 20):
     await interaction.response.defer(ephemeral=True,thinking=True)
     messageToUser = []
     with open(LOGFILE, "r", encoding="utf-8") as f:
@@ -295,9 +351,14 @@ async def summonlogs(interaction: discord.Interaction, number_of_lines: int = 20
 async def on_error(interaction: discord.Interaction, error):
     await interaction.response.defer(ephemeral=True,thinking=True)
     log_deny(interaction)
-    await interaction.followup.send("You do not have permissions for this command.",ephemeral=True)
+    await interaction.followup.send(
+        "You do not have permissions for this command.",
+        ephemeral=True
+        )
 
-@tree.command(name="shutdown_server",description=f"Shutdown Server role only. Shuts down server machine.")
+@tree.command(name="shutdown_server",
+              description=(f"Shutdown Server role only. "
+                           "Shuts down server machine."))
 async def shutdown_server(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=True,thinking=True)
     log_interaction(interaction)
@@ -310,6 +371,8 @@ async def shutdown_server(interaction: discord.Interaction):
         await interaction.followup.send(messageToUser,ephemeral=True)
     else:
         log_deny(interaction)
-        await interaction.followup.send("You do not have permissions for this command.",ephemeral=True)
+        await interaction.followup.send(
+            "You do not have permissions for this command.",ephemeral=True
+            )
 
 bot.run(DISCORD_TOKEN)
