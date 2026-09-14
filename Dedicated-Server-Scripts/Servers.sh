@@ -12,7 +12,6 @@ do
 done
 
 shopt -s expand_aliases
-source ~/.bash_aliases
 
 serverLocation=_${game}_ServerLocation
 serverLocation="${!serverLocation}"
