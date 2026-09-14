@@ -1,5 +1,6 @@
 #! /bin/bash
-### This script should be added to crontab, set to start at the time you want the dedicated server to start trying to shut down. It can also be run as ShutdownComputer.service with -n option to initiate a server shutdown that closes all open games first
+### This script should be added to crontab, set to start at the time you want the dedicated server to start trying to shut down. 
+### It can also be run as ShutdownComputer.service with -n option to initiate a server shutdown that closes all open games first
 cd "$(dirname "$0")" || exit
 source ./.PATHS
 while getopts tn o
